@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
+      fx:controller="application.User.UserUIController.RegisterController" alignment="CENTER" spacing="10" style="-fx-padding: 20;">
+    
+    <!-- Title -->
+    <Label text="Register" style="-fx-font-size: 24; -fx-font-weight: bold;" />
+
+    <!-- Username and Password Section -->
+    <VBox spacing="10" alignment="CENTER" style="-fx-padding: 10; -fx-border-color: lightgray; -fx-border-width: 1;">
+        <!-- Username Input -->
+        <TextField fx:id="usernameField" promptText="Enter Username" />
+        <!-- Password Input -->
+        <PasswordField fx:id="passwordField" promptText="Enter Password" />
+    </VBox>
+
+    <!-- Register Buttons (Horizontally Arranged) -->
+    <HBox spacing="20" alignment="CENTER">
+        <Button fx:id="normalRegisterButton" text="Normal Register" onAction="#handleNormalRegister" />
+        <Button fx:id="vipRegisterButton" text="VIP Register" onAction="#handleVIPRegister" />
+    </HBox>
+
+    <!-- Back Button -->
+    <Button fx:id="backButton" text="Back to Login" onAction="#handleBackToLogin" />
+</VBox>
