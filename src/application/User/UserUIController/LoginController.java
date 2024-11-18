@@ -36,12 +36,18 @@ public class LoginController {
         UserDirectory userDirectory = RegisterController.getUserDirectory();
 
         User user = userDirectory.login(username, password);
-        if (user != null && user.getUserType().equals(UserType.VIP)) {
-            showAlert(Alert.AlertType.INFORMATION, "Login Successful", "Welcome, VIP" + user.getUsername() + "!");
-        } 
-        else if (user != null && user.getUserType().equals(UserType.NORMAL)) {
-            showAlert(Alert.AlertType.INFORMATION, "Login Successful", "Welcome, " + user.getUsername() + "!");
+        if (user != null) {
+            // 用戶登入成功
+            if (user.getUserType().equals(UserType.VIP)) {
+                showAlert(Alert.AlertType.INFORMATION, "Login Successful", "Welcome, VIP " + user.getUsername() + "!");
+            } else if (user.getUserType().equals(UserType.NORMAL)) {
+                showAlert(Alert.AlertType.INFORMATION, "Login Successful", "Welcome, " + user.getUsername() + "!");
+            }
+
+            // 加載主頁面
+            loadMainPage();
         } else {
+            // 用戶登入失敗
             showAlert(Alert.AlertType.ERROR, "Login Failed", "Invalid username or password.");
         }
     }
@@ -68,6 +74,22 @@ public class LoginController {
             e.printStackTrace();
         }
     }
+
+    private void loadMainPage() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/application/today.fxml"));
+            Parent root = loader.load();
+
+            Stage stage = (Stage) usernameField.getScene().getWindow();
+            stage.setScene(new Scene(root, 800, 600));
+            stage.setTitle("To-Do List - Today");
+            stage.show();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+
 
     private void showAlert(Alert.AlertType alertType, String title, String message) {
         Alert alert = new Alert(alertType);
