@@ -1,0 +1,9 @@
+Title,Description,DueDate,Priority,Tag,IsCompleted
+Quarterly Report,Complete Q4 financial report,2024-11-24,HIGH,OFFICE,false
+Team Meeting,Weekly team sync-up,2024-11-18,MEDIUM,OFFICE,false
+Grocery Shopping,Buy groceries for the week,2024-11-17,MEDIUM,HOME,false
+Home Maintenance,Fix leaking kitchen faucet,2024-11-20,LOW,HOME,false
+Car Service,Take car for regular maintenance,2024-11-22,HIGH,ERRAND,false
+Dentist Appointment,Annual dental checkup,2024-12-01,HIGH,IMPORTANT,false
+Pay Bills,Pay utility bills,2024-11-16,HIGH,IMPORTANT,true
+Birthday Gift,Buy birthday gift for mom,2024-11-27,MEDIUM,PENDING,false
