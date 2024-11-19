@@ -1,5 +1,6 @@
 package application.User.UserUIController;
 
+import application.TodayController.TodayController;
 import application.User.User;
 import application.User.UserDirectory;
 import application.User.UserType;
@@ -45,7 +46,7 @@ public class LoginController {
             }
 
             // 加載主頁面
-            loadMainPage();
+            loadMainPage(user);
         } else {
             // 用戶登入失敗
             showAlert(Alert.AlertType.ERROR, "Login Failed", "Invalid username or password.");
@@ -75,10 +76,13 @@ public class LoginController {
         }
     }
 
-    private void loadMainPage() {
+    private void loadMainPage(User user) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/application/today.fxml"));
             Parent root = loader.load();
+
+            TodayController controller = loader.getController();
+            controller.initialize(user); // Pass the logged-in user
 
             Stage stage = (Stage) usernameField.getScene().getWindow();
             stage.setScene(new Scene(root, 800, 600));
@@ -88,6 +92,8 @@ public class LoginController {
             e.printStackTrace();
         }
     }
+
+
 
 
 

@@ -28,41 +28,16 @@ public class TodayController {
 
     private ObservableList<String> navigationItems;
     private ToDoManager toDoManager;
-    
 
-
-    @FXML
-    private void initialize() {
-    	// Set the locale to English
+    public void initialize(User user) {
+        this.toDoManager = user.getToDoManager(); // Use the logged-in user's ToDoManager
         Locale.setDefault(Locale.ENGLISH);
-    	
-        // Initialize ToDoManager
-        toDoManager = new ToDoManager();
 
-        // Initialize navigation items
         navigationItems = FXCollections.observableArrayList("Inbox", "Today", "Upcoming", "Important", "Trash");
         navigationList.setItems(navigationItems);
 
-        // Set a cell factory for bold navigation items
-        navigationList.setCellFactory(param -> new ListCell<>() {
-            @Override
-            protected void updateItem(String item, boolean empty) {
-                super.updateItem(item, empty);
-                if (empty || item == null) {
-                    setText(null);
-                } else {
-                    setText(item);
-                    setStyle("-fx-font-weight: bold;"); // Make the text bold
-                }
-            }
-        });
-        
-        // Navigation list listener
-        navigationList.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            updateTasks(newValue);
-        });
+        navigationList.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> updateTasks(newValue));
 
-        // Initialize task list view
         taskListView.setCellFactory(param -> new ListCell<>() {
             @Override
             protected void updateItem(ToDoItem item, boolean empty) {
@@ -76,7 +51,7 @@ public class TodayController {
                     checkBox.setOnAction(e -> item.setCompleted(checkBox.isSelected()));
 
                     Label titleLabel = new Label(item.getTitle());
-                    Label tagLabel = new Label(item.getTag().toString());
+                    Label tagLabel = new Label(item.getTag() != null ? item.getTag().toString() : "No Tag");
                     tagLabel.setStyle("-fx-background-color: lightgray; -fx-padding: 2 4; -fx-border-radius: 4; -fx-background-radius: 4;");
 
                     HBox cellBox = new HBox(10, checkBox, titleLabel, tagLabel);
@@ -85,12 +60,9 @@ public class TodayController {
             }
         });
 
-        // Task selection listener to display task details
         taskListView.getSelectionModel().selectedItemProperty().addListener((observable, oldTask, newTask) -> {
             if (newTask != null) {
                 showTaskDetails(newTask);
-            } else {
-                taskDetails.setText("Select a task to view its details");
             }
         });
 
@@ -130,8 +102,12 @@ public class TodayController {
         if (selectedTask != null) {
             toDoManager.deleteTask(selectedTask);
             updateTasks(navigationList.getSelectionModel().getSelectedItem());
+
+            // Clear the task details since the task was deleted
+            taskDetails.setText("Select a task to view its details");
         }
     }
+
 
     private void showAddTaskDialog(ToDoItem task) {
         Dialog<ToDoItem> dialog = new Dialog<>();
