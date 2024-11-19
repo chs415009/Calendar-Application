@@ -2,6 +2,7 @@ package application.TodayController;
 
 import application.ToDoItem;
 import application.ToDoManager;
+import application.User.User;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -27,6 +28,8 @@ public class TodayController {
 
     private ObservableList<String> navigationItems;
     private ToDoManager toDoManager;
+    
+
 
     @FXML
     private void initialize() {
@@ -173,15 +176,35 @@ public class TodayController {
 
         dialog.setResultConverter(dialogButton -> {
             if (dialogButton == saveButtonType) {
+                // Validate required fields
+                if (titleField.getText().isEmpty() || 
+                    descriptionField.getText().isEmpty() || 
+                    dueDatePicker.getValue() == null || 
+                    priorityComboBox.getValue() == null || 
+                    tagComboBox.getValue() == null) {
+                    
+                    // Show an error alert if any field is missing
+                    Alert alert = new Alert(Alert.AlertType.ERROR);
+                    alert.setTitle(null); // No title
+                    alert.setHeaderText(null); // No header
+                    alert.setContentText("Please fill in all fields."); // Content text only
+                    alert.showAndWait();
+
+                    // Reopen the dialog if validation fails
+                    showAddTaskDialog(task);
+                    return null; // Stop processing this result converter
+                }
+
+                // Return a new ToDoItem if all fields are valid
                 return new ToDoItem(
-                        titleField.getText(),
-                        descriptionField.getText(),
-                        dueDatePicker.getValue(),
-                        priorityComboBox.getValue(),
-                        tagComboBox.getValue()
+                    titleField.getText(),
+                    descriptionField.getText(),
+                    dueDatePicker.getValue(),
+                    priorityComboBox.getValue(),
+                    tagComboBox.getValue()
                 );
             }
-            return null;
+            return null; // Cancel or invalid save
         });
 
         Optional<ToDoItem> result = dialog.showAndWait();
@@ -190,11 +213,11 @@ public class TodayController {
                 toDoManager.addTask(newTask);
             } else {
                 task.editTask(
-                        newTask.getTitle(),
-                        newTask.getDescription(),
-                        newTask.getDueDate(),
-                        newTask.getPriority(),
-                        newTask.getTag()
+                    newTask.getTitle(),
+                    newTask.getDescription(),
+                    newTask.getDueDate(),
+                    newTask.getPriority(),
+                    newTask.getTag()
                 );
             }
             updateTasks(navigationList.getSelectionModel().getSelectedItem());

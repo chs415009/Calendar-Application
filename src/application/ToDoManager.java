@@ -53,14 +53,14 @@ public class ToDoManager {
     // choose for a date
     public List<ToDoItem> getTasksForDay(LocalDate date) {
         List<ToDoItem> tasksForDay = new ArrayList<>();
-        for (int i = 0; i < toDoList.size(); i++) { 
-            ToDoItem task = toDoList.get(i);
-            if (task.getDueDate().equals(date)) {
+        for (ToDoItem task : toDoList) {
+            if (task.getDueDate() != null && task.getDueDate().equals(date)) { // Add null check
                 tasksForDay.add(task);
             }
         }
         return tasksForDay;
     }
+
     
     public List<ToDoItem> getCompletedTasks() {
         List<ToDoItem> completedTasks = new ArrayList<>();
