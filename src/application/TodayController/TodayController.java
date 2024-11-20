@@ -3,20 +3,14 @@ package application.TodayController;
 import application.ToDoItem;
 import application.ToDoManager;
 import application.User.User;
-import application.weekly.WeeklyController;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
-import javafx.stage.Stage;
 
-import java.io.IOException;
 import java.time.LocalDate;
 import java.util.Locale;
 import java.util.Optional;
@@ -32,26 +26,24 @@ public class TodayController {
     @FXML
     private Label taskDetails; // To display task details
 
+    @FXML
+    private HBox filterSection; // Reference to the filter section (filter buttons)
+    
     private ObservableList<String> navigationItems;
     private ToDoManager toDoManager;
-    private User currentUser;
 
     public void initialize(User user) {
-    	this.currentUser = user;
         this.toDoManager = user.getToDoManager(); // Use the logged-in user's ToDoManager
         Locale.setDefault(Locale.ENGLISH);
 
-        navigationItems = FXCollections.observableArrayList("Inbox", "Today", "Weekly", "Upcoming", "Important", "Trash");
+        // Populate the navigation items
+        navigationItems = FXCollections.observableArrayList("Inbox", "Today", "Upcoming", "Important", "Trash");
         navigationList.setItems(navigationItems);
 
-        navigationList.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-        	if ("Weekly".equals(newValue)) {
-                loadWeeklyView();
-            } else {
-                updateTasks(newValue);
-            }
-        });
+        // Listen to changes in navigation selection
+        navigationList.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> updateTasks(newValue));
 
+        // Configure the task list cells
         taskListView.setCellFactory(param -> new ListCell<>() {
             @Override
             protected void updateItem(ToDoItem item, boolean empty) {
@@ -74,23 +66,41 @@ public class TodayController {
             }
         });
 
+        // Listen to task selection changes
         taskListView.getSelectionModel().selectedItemProperty().addListener((observable, oldTask, newTask) -> {
             if (newTask != null) {
                 showTaskDetails(newTask);
             }
         });
 
+        // Initialize tasks to "Inbox"
         updateTasks("Inbox");
     }
 
     private void updateTasks(String category) {
         ObservableList<ToDoItem> filteredTasks = FXCollections.observableArrayList();
+
+        // Control the visibility of the filter section
+        if ("Inbox".equals(category) || "Today".equals(category)) {
+            filterSection.setVisible(true);
+            filterSection.setManaged(true); // Ensures space is allocated when visible
+        } else {
+            filterSection.setVisible(false);
+            filterSection.setManaged(false); // Ensures no space is allocated when hidden
+        }
+
+        // Update the task list based on the selected category
         switch (category) {
             case "Inbox" -> filteredTasks.addAll(toDoManager.getAllTasks());
             case "Today" -> filteredTasks.addAll(toDoManager.getTasksForDay(LocalDate.now()));
-            case "Important" -> filteredTasks.addAll(toDoManager.filterTasksByTag(ToDoItem.Tag.IMPORTANT));
-            case "Trash" -> filteredTasks.addAll(toDoManager.getCompletedTasks());
+            case "Upcoming", "Important" , "Trash" -> {
+                // Display a blank area for "Upcoming" and "Important"
+                taskListView.setItems(FXCollections.observableArrayList()); // No tasks
+                taskDetails.setText(""); // Clear task details
+            }
         }
+
+        // Update the task list view
         taskListView.setItems(filteredTasks);
     }
 
@@ -104,10 +114,60 @@ public class TodayController {
                 "Tag: " + task.getTag()
         );
     }
+    
+    @FXML
+    private void handleFilterAll() {
+        taskListView.setItems(FXCollections.observableArrayList(toDoManager.getAllTasks()));
+    }
+
+    @FXML
+    private void handleFilterErrand() {
+        taskListView.setItems(FXCollections.observableArrayList(toDoManager.filterTasksByTag(ToDoItem.Tag.ERRAND)));
+    }
+
+    @FXML
+    private void handleFilterHome() {
+        taskListView.setItems(FXCollections.observableArrayList(toDoManager.filterTasksByTag(ToDoItem.Tag.HOME)));
+    }
+
+    @FXML
+    private void handleFilterOffice() {
+        taskListView.setItems(FXCollections.observableArrayList(toDoManager.filterTasksByTag(ToDoItem.Tag.OFFICE)));
+    }
+
+    @FXML
+    private void handleFilterImportant() {
+        taskListView.setItems(FXCollections.observableArrayList(toDoManager.filterTasksByTag(ToDoItem.Tag.IMPORTANT)));
+    }
+    
+    @FXML
+    private void handleFilterPending() {
+        taskListView.setItems(FXCollections.observableArrayList(toDoManager.filterTasksByTag(ToDoItem.Tag.PENDING)));
+    }
 
     @FXML
     private void handleAddTask() {
-        showAddTaskDialog(null);
+        showAddTaskDialog(null); // Show the dialog to add a task
+
+        // Refresh the task list to display the new task immediately
+        String selectedCategory = navigationList.getSelectionModel().getSelectedItem();
+        updateTasks(selectedCategory); // Update the tasks based on the current category
+    }
+    
+    @FXML
+    private void handleEditTask() {
+        ToDoItem selectedTask = taskListView.getSelectionModel().getSelectedItem();
+        if (selectedTask != null) {
+            // Open the dialog with the selected task's details pre-filled
+            showAddTaskDialog(selectedTask);
+        } else {
+            // Show an alert if no task is selected
+            Alert alert = new Alert(Alert.AlertType.WARNING);
+            alert.setTitle("No Task Selected");
+            alert.setHeaderText(null);
+            alert.setContentText("Please select a task to edit.");
+            alert.showAndWait();
+        }
     }
 
     @FXML
@@ -121,7 +181,6 @@ public class TodayController {
             taskDetails.setText("Select a task to view its details");
         }
     }
-
 
     private void showAddTaskDialog(ToDoItem task) {
         Dialog<ToDoItem> dialog = new Dialog<>();
@@ -137,6 +196,7 @@ public class TodayController {
         TextField descriptionField = new TextField();
         descriptionField.setPromptText("Description");
         DatePicker dueDatePicker = new DatePicker();
+        dueDatePicker.setEditable(false); // Disable manual typing
         ComboBox<ToDoItem.Priority> priorityComboBox = new ComboBox<>(FXCollections.observableArrayList(ToDoItem.Priority.values()));
         ComboBox<ToDoItem.Tag> tagComboBox = new ComboBox<>(FXCollections.observableArrayList(ToDoItem.Tag.values()));
 
@@ -166,26 +226,24 @@ public class TodayController {
 
         dialog.setResultConverter(dialogButton -> {
             if (dialogButton == saveButtonType) {
-                // Validate required fields
-                if (titleField.getText().isEmpty() || 
-                    descriptionField.getText().isEmpty() || 
-                    dueDatePicker.getValue() == null || 
-                    priorityComboBox.getValue() == null || 
+                // Validate fields
+                if (titleField.getText().isEmpty() ||
+                    descriptionField.getText().isEmpty() ||
+                    dueDatePicker.getValue() == null ||
+                    priorityComboBox.getValue() == null ||
                     tagComboBox.getValue() == null) {
-                    
-                    // Show an error alert if any field is missing
+
                     Alert alert = new Alert(Alert.AlertType.ERROR);
                     alert.setTitle(null); // No title
                     alert.setHeaderText(null); // No header
-                    alert.setContentText("Please fill in all fields."); // Content text only
+                    alert.setContentText("Please fill in all fields.");
                     alert.showAndWait();
 
-                    // Reopen the dialog if validation fails
+                    // Reopen dialog if validation fails
                     showAddTaskDialog(task);
-                    return null; // Stop processing this result converter
+                    return null;
                 }
 
-                // Return a new ToDoItem if all fields are valid
                 return new ToDoItem(
                     titleField.getText(),
                     descriptionField.getText(),
@@ -194,7 +252,7 @@ public class TodayController {
                     tagComboBox.getValue()
                 );
             }
-            return null; // Cancel or invalid save
+            return null;
         });
 
         Optional<ToDoItem> result = dialog.showAndWait();
@@ -212,46 +270,5 @@ public class TodayController {
             }
             updateTasks(navigationList.getSelectionModel().getSelectedItem());
         });
-    }
-    
-    
-    // load weekly view 
-    private void loadWeeklyView() {
-    	
-    	System.out.println("loadWeeklyView");
-    	
-        try {
-            // Update the resource path to match your project structure
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("../weekly/weekly.fxml"));
-            Parent root = loader.load();
-
-            WeeklyController weeklyController = loader.getController();
-            weeklyController.initialize(currentUser);
-
-            // Get the current stage
-            Stage stage = (Stage) navigationList.getScene().getWindow();
-
-            // Create and set the new scene
-            Scene scene = new Scene(root, 800, 600);
-            // Update the CSS path if needed based on your project structure
-            scene.getStylesheets().add(getClass().getResource("/application/application.css").toExternalForm());
-
-            stage.setScene(scene);
-            stage.setTitle("To-Do List - Weekly View");
-            stage.show();
-        } catch (IOException e) {
-            e.printStackTrace();
-            Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle("Navigation Error");
-            alert.setHeaderText(null);
-            alert.setContentText("Could not load the weekly view. Error: " + e.getMessage()); // Added error message
-            alert.showAndWait();
-        }
-    }
-    
- // Add this new method to allow external selection
-    public void selectNavigationItem(String item) {
-        navigationList.getSelectionModel().select(item);
-        updateTasks(item);
     }
 }
