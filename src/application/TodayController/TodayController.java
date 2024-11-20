@@ -3,14 +3,20 @@ package application.TodayController;
 import application.ToDoItem;
 import application.ToDoManager;
 import application.User.User;
+import application.weekly.WeeklyController;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
+import javafx.stage.Stage;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.util.Locale;
 import java.util.Optional;
@@ -28,15 +34,23 @@ public class TodayController {
 
     private ObservableList<String> navigationItems;
     private ToDoManager toDoManager;
+    private User currentUser;
 
     public void initialize(User user) {
+    	this.currentUser = user;
         this.toDoManager = user.getToDoManager(); // Use the logged-in user's ToDoManager
         Locale.setDefault(Locale.ENGLISH);
 
-        navigationItems = FXCollections.observableArrayList("Inbox", "Today", "Upcoming", "Important", "Trash");
+        navigationItems = FXCollections.observableArrayList("Inbox", "Today", "Weekly", "Upcoming", "Important", "Trash");
         navigationList.setItems(navigationItems);
 
-        navigationList.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> updateTasks(newValue));
+        navigationList.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+        	if ("Weekly".equals(newValue)) {
+                loadWeeklyView();
+            } else {
+                updateTasks(newValue);
+            }
+        });
 
         taskListView.setCellFactory(param -> new ListCell<>() {
             @Override
@@ -198,5 +212,40 @@ public class TodayController {
             }
             updateTasks(navigationList.getSelectionModel().getSelectedItem());
         });
+    }
+    
+    
+    // load weekly view 
+    private void loadWeeklyView() {
+    	
+    	System.out.println("loadWeeklyView");
+    	
+        try {
+            // Update the resource path to match your project structure
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("../weekly/weekly.fxml"));
+            Parent root = loader.load();
+
+            WeeklyController weeklyController = loader.getController();
+            weeklyController.initialize(currentUser);
+
+            // Get the current stage
+            Stage stage = (Stage) navigationList.getScene().getWindow();
+
+            // Create and set the new scene
+            Scene scene = new Scene(root, 800, 600);
+            // Update the CSS path if needed based on your project structure
+            scene.getStylesheets().add(getClass().getResource("/application/application.css").toExternalForm());
+
+            stage.setScene(scene);
+            stage.setTitle("To-Do List - Weekly View");
+            stage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Navigation Error");
+            alert.setHeaderText(null);
+            alert.setContentText("Could not load the weekly view. Error: " + e.getMessage()); // Added error message
+            alert.showAndWait();
+        }
     }
 }
