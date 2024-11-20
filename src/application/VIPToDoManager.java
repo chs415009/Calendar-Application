@@ -15,7 +15,7 @@ public class VIPToDoManager extends ToDoManager {
 
 	private List<ToDoItem> toDoList;	
 	public VIPToDoManager(User user) {
-		toDoList = user.getToDoList();
+		super(user);
 	}
 	
 	public void createPeriodicToDo(String title, String description, String Date1, String Date2, Priority priority, Tag tag, String frequency) {
