@@ -5,20 +5,19 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.control.*?>
-<?import javafx.geometry.Insets?>
 
 <BorderPane xmlns="http://javafx.com/javafx" 
             xmlns:fx="http://javafx.com/fxml"
             fx:controller="application.weekly.WeeklyController">
     <left>
-        <VBox spacing="10" style="-fx-padding: 10;">
-            <Label text="Navigation" style="-fx-font-size: 18px; -fx-font-weight: bold;"/>
-            <ListView fx:id="navigationList" VBox.vgrow="ALWAYS"/>
+        <VBox spacing="10" VBox.vgrow="ALWAYS">
+            <Label text="Navigation" style="-fx-font-size: 18px; -fx-font-weight: bold;" />
+            <ListView fx:id="navigationList" VBox.vgrow="ALWAYS" />
         </VBox>
     </left>
     
     <center>
-        <VBox spacing="10" style="-fx-padding: 10;">
+        <VBox spacing="10" VBox.vgrow="ALWAYS">
             <!-- Week Navigation -->
             <HBox spacing="10" alignment="CENTER">
                 <Button fx:id="previousWeekButton" text="Previous Week"/>
@@ -27,20 +26,20 @@
             </HBox>
             
             <!-- Weekly Calendar Grid -->
-            <GridPane fx:id="weeklyGrid" VBox.vgrow="ALWAYS" hgap="5" vgap="5" style="-fx-border-color: lightgray; -fx-border-width: 1;">
+            <GridPane fx:id="weeklyGrid" VBox.vgrow="ALWAYS" hgap="5" vgap="5">
                 <!-- Headers will be added programmatically -->
             </GridPane>
             
             <!-- Task Controls -->
             <HBox spacing="10" alignment="CENTER">
-                <Button text="Add Task" onAction="#handleAddTask"/>
-                <Button text="Delete Task" onAction="#handleDeleteTask"/>
+                <Button text="Add Task" onAction="#handleAddTask" />
+                <Button text="Delete Task" onAction="#handleDeleteTask" />
             </HBox>
             
             <!-- Task Details Section -->
-            <VBox spacing="10" style="-fx-padding: 10; -fx-border-color: lightgray; -fx-border-width: 1;">
-                <Label text="Task Details" style="-fx-font-size: 16px; -fx-font-weight: bold;"/>
-                <Label fx:id="taskDetails" text="Select a task to view its details"/>
+            <VBox spacing="10" VBox.vgrow="NEVER">
+                <Label text="Task Details" style="-fx-font-size: 16px; -fx-font-weight: bold;" />
+                <Label fx:id="taskDetails" text="Select a task to view its details" />
             </VBox>
         </VBox>
     </center>

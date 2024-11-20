@@ -248,4 +248,10 @@ public class TodayController {
             alert.showAndWait();
         }
     }
+    
+ // Add this new method to allow external selection
+    public void selectNavigationItem(String item) {
+        navigationList.getSelectionModel().select(item);
+        updateTasks(item);
+    }
 }
