@@ -3,14 +3,20 @@ package application.TodayController;
 import application.ToDoItem;
 import application.ToDoManager;
 import application.User.User;
+import application.weekly.WeeklyController;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
+import javafx.stage.Stage;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.util.Locale;
 import java.util.Optional;
@@ -31,13 +37,16 @@ public class TodayController {
     
     private ObservableList<String> navigationItems;
     private ToDoManager toDoManager;
+    private User currentUser;
+    
 
     public void initialize(User user) {
+    	this.currentUser = user;
         this.toDoManager = user.getToDoManager(); // Use the logged-in user's ToDoManager
         Locale.setDefault(Locale.ENGLISH);
 
         // Populate the navigation items
-        navigationItems = FXCollections.observableArrayList("Inbox", "Today", "Upcoming", "Important", "Trash");
+        navigationItems = FXCollections.observableArrayList("Inbox", "Today", "Weekly", "Upcoming", "Important", "Trash");
         navigationList.setItems(navigationItems);
 
         // Listen to changes in navigation selection
@@ -65,6 +74,32 @@ public class TodayController {
                 }
             }
         });
+        
+        navigationList.setCellFactory(lv -> new ListCell<String>() {
+            @Override
+            protected void updateItem(String item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+                    setText(null);
+                } else {
+                    setText(item);
+                    if (getListView().getSelectionModel().getSelectedItem() != null &&
+                        getListView().getSelectionModel().getSelectedItem().equals(item)) {
+                        setStyle("-fx-background-color: #0096c9; -fx-text-fill: white;");
+                    } else {
+                        setStyle("");
+                    }
+                }
+            }
+        });
+        
+        navigationList.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            if ("Weekly".equals(newValue)) {
+                loadWeeklyView();
+            } else {
+                updateTasks(newValue);
+            }
+        });
 
         // Listen to task selection changes
         taskListView.getSelectionModel().selectedItemProperty().addListener((observable, oldTask, newTask) -> {
@@ -74,7 +109,9 @@ public class TodayController {
         });
 
         // Initialize tasks to "Inbox"
-        updateTasks("Inbox");
+        navigationList.getSelectionModel().select("Inbox");
+        updateTasks("Inbox"); // Load tasks for the "Inbox" category
+
     }
 
     private void updateTasks(String category) {
@@ -270,5 +307,41 @@ public class TodayController {
             }
             updateTasks(navigationList.getSelectionModel().getSelectedItem());
         });
+    }
+    
+    public void selectNavigationItem(String item) {
+        navigationList.getSelectionModel().select(item);
+        updateTasks(item);
+    }
+    
+    private void loadWeeklyView() {
+        try {
+            // Get current window dimensions
+            Stage currentStage = (Stage) navigationList.getScene().getWindow();
+            double width = currentStage.getWidth();
+            double height = currentStage.getHeight();
+            
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/application/weekly/weekly.fxml"));
+            Parent root = loader.load();
+
+            WeeklyController controller = loader.getController();
+            controller.initialize(currentUser);
+
+            Scene scene = new Scene(root);
+            scene.getStylesheets().add(getClass().getResource("/application/application.css").toExternalForm());
+
+            // Apply the size before showing
+            currentStage.setScene(scene);
+            currentStage.setTitle("To-Do List - Weekly View");
+            currentStage.setWidth(width);
+            currentStage.setHeight(height);
+        } catch (IOException e) {
+            e.printStackTrace();
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Navigation Error");
+            alert.setHeaderText(null);
+            alert.setContentText("Could not load the weekly view. Error: " + e.getMessage());
+            alert.showAndWait();
+        }
     }
 }
