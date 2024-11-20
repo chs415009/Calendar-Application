@@ -4,13 +4,15 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
+import application.User.User;
+
 public class ToDoManager {
 	
 	private List<ToDoItem> toDoList;
 	
 	// Constructor (initialize to-do list)
-    public ToDoManager() {
-        this.toDoList = new ArrayList<>();
+    public ToDoManager(User user) {
+    	this.toDoList = user.getToDoList(); // Initialize with user's to-do list
     }
     
     public void addTask(ToDoItem task) {
@@ -53,14 +55,14 @@ public class ToDoManager {
     // choose for a date
     public List<ToDoItem> getTasksForDay(LocalDate date) {
         List<ToDoItem> tasksForDay = new ArrayList<>();
-        for (int i = 0; i < toDoList.size(); i++) { 
-            ToDoItem task = toDoList.get(i);
-            if (task.getDueDate().equals(date)) {
+        for (ToDoItem task : toDoList) {
+            if (task.getDueDate() != null && task.getDueDate().equals(date)) { // Add null check
                 tasksForDay.add(task);
             }
         }
         return tasksForDay;
     }
+
     
     public List<ToDoItem> getCompletedTasks() {
         List<ToDoItem> completedTasks = new ArrayList<>();
