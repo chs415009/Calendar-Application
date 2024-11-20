@@ -93,8 +93,6 @@ public class TodayController {
         switch (category) {
             case "Inbox" -> filteredTasks.addAll(toDoManager.getAllTasks());
             case "Today" -> filteredTasks.addAll(toDoManager.getTasksForDay(LocalDate.now()));
-            // case "Upcoming" -> filteredTasks.addAll(toDoManager.getPendingTasks()); // Example logic for "Upcoming"
-            // case "Important" -> filteredTasks.addAll(toDoManager.filterTasksByTag(ToDoItem.Tag.IMPORTANT));
             case "Trash" -> filteredTasks.addAll(toDoManager.getCompletedTasks());
             case "Upcoming", "Important" -> {
                 // Display a blank area for "Upcoming" and "Important"
@@ -181,7 +179,6 @@ public class TodayController {
         }
     }
 
-
     private void showAddTaskDialog(ToDoItem task) {
         Dialog<ToDoItem> dialog = new Dialog<>();
         dialog.setTitle(task == null ? "Add Task" : "Edit Task");
@@ -196,6 +193,7 @@ public class TodayController {
         TextField descriptionField = new TextField();
         descriptionField.setPromptText("Description");
         DatePicker dueDatePicker = new DatePicker();
+        dueDatePicker.setEditable(false); // Disable manual typing
         ComboBox<ToDoItem.Priority> priorityComboBox = new ComboBox<>(FXCollections.observableArrayList(ToDoItem.Priority.values()));
         ComboBox<ToDoItem.Tag> tagComboBox = new ComboBox<>(FXCollections.observableArrayList(ToDoItem.Tag.values()));
 
@@ -225,26 +223,24 @@ public class TodayController {
 
         dialog.setResultConverter(dialogButton -> {
             if (dialogButton == saveButtonType) {
-                // Validate required fields
-                if (titleField.getText().isEmpty() || 
-                    descriptionField.getText().isEmpty() || 
-                    dueDatePicker.getValue() == null || 
-                    priorityComboBox.getValue() == null || 
+                // Validate fields
+                if (titleField.getText().isEmpty() ||
+                    descriptionField.getText().isEmpty() ||
+                    dueDatePicker.getValue() == null ||
+                    priorityComboBox.getValue() == null ||
                     tagComboBox.getValue() == null) {
-                    
-                    // Show an error alert if any field is missing
+
                     Alert alert = new Alert(Alert.AlertType.ERROR);
                     alert.setTitle(null); // No title
                     alert.setHeaderText(null); // No header
-                    alert.setContentText("Please fill in all fields."); // Content text only
+                    alert.setContentText("Please fill in all fields.");
                     alert.showAndWait();
 
-                    // Reopen the dialog if validation fails
+                    // Reopen dialog if validation fails
                     showAddTaskDialog(task);
-                    return null; // Stop processing this result converter
+                    return null;
                 }
 
-                // Return a new ToDoItem if all fields are valid
                 return new ToDoItem(
                     titleField.getText(),
                     descriptionField.getText(),
@@ -253,7 +249,7 @@ public class TodayController {
                     tagComboBox.getValue()
                 );
             }
-            return null; // Cancel or invalid save
+            return null;
         });
 
         Optional<ToDoItem> result = dialog.showAndWait();
