@@ -147,7 +147,11 @@ public class TodayController {
 
     @FXML
     private void handleAddTask() {
-        showAddTaskDialog(null);
+        showAddTaskDialog(null); // Show the dialog to add a task
+
+        // Refresh the task list to display the new task immediately
+        String selectedCategory = navigationList.getSelectionModel().getSelectedItem();
+        updateTasks(selectedCategory); // Update the tasks based on the current category
     }
     
     @FXML
