@@ -23,6 +23,11 @@ import java.util.Locale;
 import java.util.List;
 import java.util.Optional;
 import application.User.User;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.ColumnConstraints;
+import javafx.scene.layout.RowConstraints;
+import javafx.scene.layout.HBox;
+import javafx.scene.control.*;
 
 public class WeeklyController {
 
@@ -55,7 +60,7 @@ public class WeeklyController {
         );
         navigationList.setItems(navigationItems);
 
-        // Set up cell factory for styling
+        // Set cell factory for styling
         navigationList.setCellFactory(lv -> new ListCell<String>() {
             @Override
             protected void updateItem(String item, boolean empty) {
@@ -64,7 +69,8 @@ public class WeeklyController {
                     setText(null);
                 } else {
                     setText(item);
-                    if (item.equals("Weekly")) {
+                    if (getListView().getSelectionModel().getSelectedItem() != null &&
+                        getListView().getSelectionModel().getSelectedItem().equals(item)) {
                         setStyle("-fx-background-color: #0096c9; -fx-text-fill: white;");
                     } else {
                         setStyle("");
@@ -76,11 +82,10 @@ public class WeeklyController {
         // Select "Weekly" by default
         navigationList.getSelectionModel().select("Weekly");
 
-        // Add navigation listener with expanded handling
+        // Updated navigation listener
         navigationList.getSelectionModel().selectedItemProperty().addListener(
             (observable, oldValue, newValue) -> {
-                if ("Today".equals(newValue) || "Inbox".equals(newValue) || 
-                    "Important".equals(newValue) || "Trash".equals(newValue)) {
+                if (newValue != null && !newValue.equals("Weekly")) {
                     loadTodayView(newValue);
                 }
             }
@@ -111,7 +116,8 @@ public class WeeklyController {
         // Add content areas for each day
         for (int i = 0; i < 7; i++) {
             ListView<ToDoItem> dayList = new ListView<>();
-            dayList.setPrefHeight(300);
+            // Set minimum height but allow expansion
+            dayList.setMinHeight(100);
             
             // Set cell factory to display tasks
             dayList.setCellFactory(param -> new ListCell<>() {
@@ -144,8 +150,31 @@ public class WeeklyController {
                 (observable, oldValue, newValue) -> updateTaskDetails(newValue)
             );
             
+            // Add the list to the grid
             weeklyGrid.add(dayList, i, 1);
+            
+            // Make the list take up available vertical space
+            GridPane.setVgrow(dayList, Priority.ALWAYS);
+            // Make columns evenly sized
+            GridPane.setHgrow(dayList, Priority.ALWAYS);
+            
+            // Add column constraints to make columns equal width
+            ColumnConstraints column = new ColumnConstraints();
+            column.setPercentWidth(100.0 / 7.0); // Divide space equally
+            column.setHgrow(Priority.ALWAYS);
+            weeklyGrid.getColumnConstraints().add(column);
         }
+        
+        // Add row constraints
+        RowConstraints headerRow = new RowConstraints();
+        headerRow.setMinHeight(30); // Set minimum height for header
+        headerRow.setPrefHeight(30);
+        
+        RowConstraints contentRow = new RowConstraints();
+        contentRow.setVgrow(Priority.ALWAYS); // Make content row take available space
+        contentRow.setMinHeight(100); // Set minimum height
+        
+        weeklyGrid.getRowConstraints().addAll(headerRow, contentRow);
     }
     
     private void populateWeeklyTasks() {
@@ -189,6 +218,11 @@ public class WeeklyController {
     
     private void loadTodayView(String selectedItem) {
         try {
+            // Get current window dimensions
+            Stage currentStage = (Stage) navigationList.getScene().getWindow();
+            double width = currentStage.getWidth();
+            double height = currentStage.getHeight();
+            
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/application/today.fxml"));
             Parent root = loader.load();
 
@@ -196,13 +230,14 @@ public class WeeklyController {
             controller.initialize(currentUser);
             controller.selectNavigationItem(selectedItem);
 
-            Stage stage = (Stage) navigationList.getScene().getWindow();
-            Scene scene = new Scene(root, 800, 600);
+            Scene scene = new Scene(root);
             scene.getStylesheets().add(getClass().getResource("/application/application.css").toExternalForm());
             
-            stage.setScene(scene);
-            stage.setTitle("To-Do List - Today");
-            stage.show();
+            // Apply the size before showing
+            currentStage.setScene(scene);
+            currentStage.setTitle("To-Do List - Today");
+            currentStage.setWidth(width);
+            currentStage.setHeight(height);
         } catch (IOException e) {
             e.printStackTrace();
             Alert alert = new Alert(Alert.AlertType.ERROR);
@@ -252,6 +287,7 @@ public class WeeklyController {
         TextField descriptionField = new TextField();
         descriptionField.setPromptText("Description");
         DatePicker dueDatePicker = new DatePicker();
+        dueDatePicker.setEditable(false); // Disable manual typing
         ComboBox<ToDoItem.Priority> priorityComboBox = new ComboBox<>(FXCollections.observableArrayList(ToDoItem.Priority.values()));
         ComboBox<ToDoItem.Tag> tagComboBox = new ComboBox<>(FXCollections.observableArrayList(ToDoItem.Tag.values()));
 
@@ -324,5 +360,30 @@ public class WeeklyController {
             }
             populateWeeklyTasks();
         });
+    }
+    
+    @FXML
+    private void handleEditTask() {
+        // Find the selected task from any of the day lists
+        ToDoItem selectedTask = null;
+        for (int i = 0; i < 7; i++) {
+            @SuppressWarnings("unchecked")
+            ListView<ToDoItem> dayList = (ListView<ToDoItem>) weeklyGrid.getChildren().get(i + 7);
+            if (dayList.getSelectionModel().getSelectedItem() != null) {
+                selectedTask = dayList.getSelectionModel().getSelectedItem();
+                break;
+            }
+        }
+        
+        if (selectedTask != null) {
+            showAddTaskDialog(selectedTask);
+        } else {
+            // Show an alert if no task is selected
+            Alert alert = new Alert(Alert.AlertType.WARNING);
+            alert.setTitle("No Task Selected");
+            alert.setHeaderText(null);
+            alert.setContentText("Please select a task to edit.");
+            alert.showAndWait();
+        }
     }
 }
