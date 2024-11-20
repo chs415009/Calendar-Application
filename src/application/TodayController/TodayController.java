@@ -26,6 +26,9 @@ public class TodayController {
     @FXML
     private Label taskDetails; // To display task details
 
+    @FXML
+    private HBox filterSection; // Reference to the filter section (filter buttons)
+    
     private ObservableList<String> navigationItems;
     private ToDoManager toDoManager;
 
@@ -33,11 +36,14 @@ public class TodayController {
         this.toDoManager = user.getToDoManager(); // Use the logged-in user's ToDoManager
         Locale.setDefault(Locale.ENGLISH);
 
+        // Populate the navigation items
         navigationItems = FXCollections.observableArrayList("Inbox", "Today", "Upcoming", "Important", "Trash");
         navigationList.setItems(navigationItems);
 
+        // Listen to changes in navigation selection
         navigationList.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> updateTasks(newValue));
 
+        // Configure the task list cells
         taskListView.setCellFactory(param -> new ListCell<>() {
             @Override
             protected void updateItem(ToDoItem item, boolean empty) {
@@ -60,23 +66,44 @@ public class TodayController {
             }
         });
 
+        // Listen to task selection changes
         taskListView.getSelectionModel().selectedItemProperty().addListener((observable, oldTask, newTask) -> {
             if (newTask != null) {
                 showTaskDetails(newTask);
             }
         });
 
+        // Initialize tasks to "Inbox"
         updateTasks("Inbox");
     }
 
     private void updateTasks(String category) {
         ObservableList<ToDoItem> filteredTasks = FXCollections.observableArrayList();
+
+        // Control the visibility of the filter section
+        if ("Inbox".equals(category) || "Today".equals(category)) {
+            filterSection.setVisible(true);
+            filterSection.setManaged(true); // Ensures space is allocated when visible
+        } else {
+            filterSection.setVisible(false);
+            filterSection.setManaged(false); // Ensures no space is allocated when hidden
+        }
+
+        // Update the task list based on the selected category
         switch (category) {
             case "Inbox" -> filteredTasks.addAll(toDoManager.getAllTasks());
             case "Today" -> filteredTasks.addAll(toDoManager.getTasksForDay(LocalDate.now()));
-            case "Important" -> filteredTasks.addAll(toDoManager.filterTasksByTag(ToDoItem.Tag.IMPORTANT));
+            // case "Upcoming" -> filteredTasks.addAll(toDoManager.getPendingTasks()); // Example logic for "Upcoming"
+            // case "Important" -> filteredTasks.addAll(toDoManager.filterTasksByTag(ToDoItem.Tag.IMPORTANT));
             case "Trash" -> filteredTasks.addAll(toDoManager.getCompletedTasks());
+            case "Upcoming", "Important" -> {
+                // Display a blank area for "Upcoming" and "Important"
+                taskListView.setItems(FXCollections.observableArrayList()); // No tasks
+                taskDetails.setText(""); // Clear task details
+            }
         }
+
+        // Update the task list view
         taskListView.setItems(filteredTasks);
     }
 
@@ -90,10 +117,56 @@ public class TodayController {
                 "Tag: " + task.getTag()
         );
     }
+    
+    @FXML
+    private void handleFilterAll() {
+        taskListView.setItems(FXCollections.observableArrayList(toDoManager.getAllTasks()));
+    }
+
+    @FXML
+    private void handleFilterErrand() {
+        taskListView.setItems(FXCollections.observableArrayList(toDoManager.filterTasksByTag(ToDoItem.Tag.ERRAND)));
+    }
+
+    @FXML
+    private void handleFilterHome() {
+        taskListView.setItems(FXCollections.observableArrayList(toDoManager.filterTasksByTag(ToDoItem.Tag.HOME)));
+    }
+
+    @FXML
+    private void handleFilterOffice() {
+        taskListView.setItems(FXCollections.observableArrayList(toDoManager.filterTasksByTag(ToDoItem.Tag.OFFICE)));
+    }
+
+    @FXML
+    private void handleFilterImportant() {
+        taskListView.setItems(FXCollections.observableArrayList(toDoManager.filterTasksByTag(ToDoItem.Tag.IMPORTANT)));
+    }
+    
+    @FXML
+    private void handleFilterPending() {
+        taskListView.setItems(FXCollections.observableArrayList(toDoManager.filterTasksByTag(ToDoItem.Tag.PENDING)));
+    }
 
     @FXML
     private void handleAddTask() {
         showAddTaskDialog(null);
+    }
+    
+    @FXML
+    private void handleEditTask() {
+        ToDoItem selectedTask = taskListView.getSelectionModel().getSelectedItem();
+        if (selectedTask != null) {
+            // Open the dialog with the selected task's details pre-filled
+            showAddTaskDialog(selectedTask);
+        } else {
+            // Show an alert if no task is selected
+            Alert alert = new Alert(Alert.AlertType.WARNING);
+            alert.setTitle("No Task Selected");
+            alert.setHeaderText(null);
+            alert.setContentText("Please select a task to edit.");
+            alert.showAndWait();
+        }
     }
 
     @FXML
