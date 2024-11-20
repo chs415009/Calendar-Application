@@ -40,6 +40,10 @@ public class TodayController {
         navigationItems = FXCollections.observableArrayList("Inbox", "Today", "Upcoming", "Important", "Trash");
         navigationList.setItems(navigationItems);
 
+        // Pre-select the "Inbox" option
+        navigationList.getSelectionModel().select("Inbox");
+        updateTasks("Inbox"); // Load tasks for the "Inbox" category
+        
         // Listen to changes in navigation selection
         navigationList.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> updateTasks(newValue));
 
