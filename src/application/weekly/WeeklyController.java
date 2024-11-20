@@ -55,9 +55,8 @@ public class WeeklyController {
         currentWeekStart = LocalDate.now().with(WeekFields.of(Locale.getDefault()).dayOfWeek(), 1);
         
         // Set up navigation list
-        navigationItems = FXCollections.observableArrayList(
-            "Inbox", "Today", "Weekly", "Upcoming", "Important", "Trash"
-        );
+        navigationItems = FXCollections.observableArrayList("Inbox", "Today", "Weekly");
+
         navigationList.setItems(navigationItems);
 
         // Set cell factory for styling
