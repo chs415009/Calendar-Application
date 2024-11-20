@@ -93,8 +93,7 @@ public class TodayController {
         switch (category) {
             case "Inbox" -> filteredTasks.addAll(toDoManager.getAllTasks());
             case "Today" -> filteredTasks.addAll(toDoManager.getTasksForDay(LocalDate.now()));
-            case "Trash" -> filteredTasks.addAll(toDoManager.getCompletedTasks());
-            case "Upcoming", "Important" -> {
+            case "Upcoming", "Important" , "Trash" -> {
                 // Display a blank area for "Upcoming" and "Important"
                 taskListView.setItems(FXCollections.observableArrayList()); // No tasks
                 taskDetails.setText(""); // Clear task details
