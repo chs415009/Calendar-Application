@@ -46,7 +46,7 @@ public class TodayController {
         Locale.setDefault(Locale.ENGLISH);
 
         // Populate the navigation items
-        navigationItems = FXCollections.observableArrayList("Inbox", "Today", "Weekly", "Upcoming", "Important", "Trash");
+        navigationItems = FXCollections.observableArrayList("Inbox", "Today", "Weekly");
         navigationList.setItems(navigationItems);
 
         // Listen to changes in navigation selection
