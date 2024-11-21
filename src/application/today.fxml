@@ -38,13 +38,14 @@
                 <Button text="Delete Task" onAction="#handleDeleteTask" />
             </HBox>
             <!-- Task Details Section -->
-            <VBox spacing="10" style="-fx-padding: 10;" VBox.vgrow="NEVER">
+            <!-- START: Updated Section -->
+            <VBox spacing="5"> <!-- Changed spacing to 5 (from 10) -->
                 <Label text="Task Details" style="-fx-font-size: 16px; -fx-font-weight: bold;" />
-                <!-- Scrollable Task Details -->
-                <ScrollPane fitToWidth="true" fitToHeight="false">
+                <ScrollPane fitToWidth="true" prefHeight="150" maxHeight="150">
                     <Label fx:id="taskDetails" text="Select a task to view its details" wrapText="true" />
                 </ScrollPane>
             </VBox>
+            <!-- END: Updated Section -->
         </VBox>
     </center>
 </BorderPane>
