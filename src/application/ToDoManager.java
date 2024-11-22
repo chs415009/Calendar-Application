@@ -86,6 +86,18 @@ public class ToDoManager {
         return pendingTasks;
     }
     
+    public List<ToDoItem> getUpcomingTasks() {
+        List<ToDoItem> upcomingTasks = new ArrayList<>();
+        LocalDate today = LocalDate.now();
+        for (ToDoItem task : toDoList) {
+            if (task.getDueDate() != null && task.getDueDate().isAfter(today)) {
+                upcomingTasks.add(task);
+            }
+        }
+        return upcomingTasks;
+    }
+
+    
     // for returns a list of all to-do items, view all ToDoItem objects
     public List<ToDoItem> getAllTasks() {
         return new ArrayList<>(toDoList); 

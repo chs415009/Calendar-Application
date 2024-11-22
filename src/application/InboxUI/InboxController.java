@@ -1,8 +1,9 @@
-package application.TodayUI;
+package application.InboxUI;
 
 import application.ToDoItem;
 import application.ToDoManager;
 import application.MonthlyUI.MonthlyController;
+import application.TodayUI.TodayController;
 import application.User.User;
 import application.WeeklyUI.WeeklyController;
 import javafx.collections.FXCollections;
@@ -23,7 +24,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 import java.util.Optional;
 
-public class TodayController {
+public class InboxController {
 
     @FXML
     private ListView<ToDoItem> taskListView;
@@ -38,7 +39,7 @@ public class TodayController {
     private HBox filterSection; // Reference to the filter section (filter buttons)
     
     @FXML
-    private Label dateLabel; // Add reference to the new date label
+    private Label tasksTitle; // Reference to the "Tasks" label title
     
     private ObservableList<String> navigationItems;
     private ToDoManager toDoManager;
@@ -50,28 +51,24 @@ public class TodayController {
         this.toDoManager = user.getToDoManager(); // Use the logged-in user's ToDoManager
         Locale.setDefault(Locale.ENGLISH);
 
-        // Set today's date in dateLabel
-        LocalDate today = LocalDate.now();
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMM dd, yyyy");
-        dateLabel.setText(today.format(formatter));
-
-        // Default view: show "Tasks" and hide the date
-        dateLabel.setVisible(false);
-        dateLabel.setManaged(false);
+        // Show "Tasks" title and filter section by default
+        tasksTitle.setVisible(true);
+        tasksTitle.setManaged(true);
+        filterSection.setVisible(true);
+        filterSection.setManaged(true);
         
         // Populate the navigation items
         navigationItems = FXCollections.observableArrayList("Inbox", "Today", "Weekly", "Monthly");
         navigationList.setItems(navigationItems);
         
-        
-        // Select "Today" by default
-        navigationList.getSelectionModel().select("Today");
+        // Select "Inbox" by default
+        navigationList.getSelectionModel().select("Inbox");
         navigationList.getSelectionModel().selectedItemProperty().addListener(
         	    (observable, oldValue, newValue) -> {
         	        if (newValue != null) {
         	            switch (newValue) {
-        	                case "Inbox":
-        	                    loadInboxView();
+        	                case "Today":
+        	                	loadTodayView(newValue);
         	                    break;
         	                case "Weekly":
         	                    loadWeeklyView();
@@ -80,7 +77,7 @@ public class TodayController {
         	                    loadMonthlyView();
         	                    break;
         	                default:
-        	                    // Do nothing for "Today" since this is the current view.
+        	                    // Do nothing for "Inbox" since this is the current view.
         	                    break;
         	            }
         	        }
@@ -129,6 +126,7 @@ public class TodayController {
         });
         
 
+
         // Listen to task selection changes
         taskListView.getSelectionModel().selectedItemProperty().addListener((observable, oldTask, newTask) -> {
             if (newTask != null) {
@@ -136,18 +134,26 @@ public class TodayController {
             }
         });
 
+        // Initialize tasks to "Inbox"
+        navigationList.getSelectionModel().select("Inbox");
+        updateTasks("Inbox"); // Load tasks for the "Inbox" category
+
     }
 
     private void updateTasks(String category) {
         ObservableList<ToDoItem> filteredTasks = FXCollections.observableArrayList();
 
-        if ("Today".equals(category)) {
-            dateLabel.setVisible(true);
-            dateLabel.setManaged(true);
-            LocalDate today = LocalDate.now();
-            filteredTasks.addAll(toDoManager.getTasksForDay(today));
+        if ("Inbox".equals(category)) {
+            tasksTitle.setVisible(true);
+            tasksTitle.setManaged(true);
+            filterSection.setVisible(true);
+            filterSection.setManaged(true);
+
+            // 加載所有任務
+            filteredTasks.addAll(toDoManager.getAllTasks());
         }
 
+        // Update the task list view
         taskListView.setItems(filteredTasks);
     }
 
@@ -161,6 +167,36 @@ public class TodayController {
                 "Priority: " + task.getPriority() + "\n" +
                 "Tag: " + task.getTag()
         );
+    }
+    
+    @FXML
+    private void handleFilterAll() {
+        taskListView.setItems(FXCollections.observableArrayList(toDoManager.getAllTasks()));
+    }
+
+    @FXML
+    private void handleFilterErrand() {
+        taskListView.setItems(FXCollections.observableArrayList(toDoManager.filterTasksByTag(ToDoItem.Tag.ERRAND)));
+    }
+
+    @FXML
+    private void handleFilterHome() {
+        taskListView.setItems(FXCollections.observableArrayList(toDoManager.filterTasksByTag(ToDoItem.Tag.HOME)));
+    }
+
+    @FXML
+    private void handleFilterOffice() {
+        taskListView.setItems(FXCollections.observableArrayList(toDoManager.filterTasksByTag(ToDoItem.Tag.OFFICE)));
+    }
+
+    @FXML
+    private void handleFilterImportant() {
+        taskListView.setItems(FXCollections.observableArrayList(toDoManager.filterTasksByTag(ToDoItem.Tag.IMPORTANT)));
+    }
+    
+    @FXML
+    private void handleFilterPending() {
+        taskListView.setItems(FXCollections.observableArrayList(toDoManager.filterTasksByTag(ToDoItem.Tag.PENDING)));
     }
 
     @FXML
@@ -220,7 +256,7 @@ public class TodayController {
         TextField descriptionField = new TextField();
         descriptionField.setPromptText("Description");
         DatePicker dueDatePicker = new DatePicker();
-        dueDatePicker.setEditable(false);
+        dueDatePicker.setEditable(false); // Disable manual typing
         ComboBox<ToDoItem.Priority> priorityComboBox = new ComboBox<>(FXCollections.observableArrayList(ToDoItem.Priority.values()));
         ComboBox<ToDoItem.Tag> tagComboBox = new ComboBox<>(FXCollections.observableArrayList(ToDoItem.Tag.values()));
 
@@ -250,12 +286,24 @@ public class TodayController {
 
         dialog.setResultConverter(dialogButton -> {
             if (dialogButton == saveButtonType) {
-                if (titleField.getText().isEmpty() || dueDatePicker.getValue() == null) {
+                // Validate fields
+                if (titleField.getText().isEmpty() ||
+                    descriptionField.getText().isEmpty() ||
+                    dueDatePicker.getValue() == null ||
+                    priorityComboBox.getValue() == null ||
+                    tagComboBox.getValue() == null) {
+
                     Alert alert = new Alert(Alert.AlertType.ERROR);
-                    alert.setContentText("Title and Due Date are required.");
+                    alert.setTitle(null); // No title
+                    alert.setHeaderText(null); // No header
+                    alert.setContentText("Please fill in all fields.");
                     alert.showAndWait();
+
+                    // Reopen dialog if validation fails
+                    showAddTaskDialog(task);
                     return null;
                 }
+
                 return new ToDoItem(
                     titleField.getText(),
                     descriptionField.getText(),
@@ -351,26 +399,26 @@ public class TodayController {
         }
     }
     
-    private void loadInboxView() {
+    private void loadTodayView(String selectedItem) {
         try {
             // Get current window dimensions
             Stage currentStage = (Stage) navigationList.getScene().getWindow();
             double width = currentStage.getWidth();
             double height = currentStage.getHeight();
-
-            // Load the Inbox FXML
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/application/InboxUI/inbox.fxml"));
+            
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/application/TodayUI/today.fxml"));
             Parent root = loader.load();
 
-            // Get the controller and initialize it
-            application.InboxUI.InboxController controller = loader.getController();
+            TodayController controller = loader.getController();
             controller.initialize(currentUser);
+            controller.selectNavigationItem(selectedItem);
 
-            // Set the new scene
             Scene scene = new Scene(root);
             scene.getStylesheets().add(getClass().getResource("/application/application.css").toExternalForm());
+            
+            // Apply the size before showing
             currentStage.setScene(scene);
-            currentStage.setTitle("To-Do List - Inbox");
+            currentStage.setTitle("To-Do List - Today");
             currentStage.setWidth(width);
             currentStage.setHeight(height);
         } catch (IOException e) {
@@ -378,9 +426,9 @@ public class TodayController {
             Alert alert = new Alert(Alert.AlertType.ERROR);
             alert.setTitle("Navigation Error");
             alert.setHeaderText(null);
-            alert.setContentText("Could not load the Inbox view. Error: " + e.getMessage());
+            alert.setContentText("Could not load the today view. Error: " + e.getMessage());
             alert.showAndWait();
         }
     }
-    
+
 }

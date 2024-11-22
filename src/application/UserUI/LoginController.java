@@ -1,5 +1,6 @@
 package application.UserUI;
 
+import application.InboxUI.InboxController;
 import application.TodayUI.TodayController;
 import application.User.User;
 import application.User.UserDirectory;
@@ -78,23 +79,20 @@ public class LoginController {
 
     private void loadMainPage(User user) {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/application/TodayUI/today.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/application/InboxUI/inbox.fxml"));
             Parent root = loader.load();
 
-            TodayController controller = loader.getController();
+            InboxController controller = loader.getController();
             controller.initialize(user); // Pass the logged-in user
 
             Stage stage = (Stage) usernameField.getScene().getWindow();
             stage.setScene(new Scene(root, 800, 600));
-            stage.setTitle("To-Do List - Today");
+            stage.setTitle("To-Do List - Inbox");
             stage.show();
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
-
-
-
 
 
     private void showAlert(Alert.AlertType alertType, String title, String message) {
