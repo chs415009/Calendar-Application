@@ -1,6 +1,6 @@
-package application.User.UserUIController;
+package application.UserUI;
 
-import application.TodayController.TodayController;
+import application.TodayUI.TodayController;
 import application.User.User;
 import application.User.UserDirectory;
 import application.User.UserType;
@@ -57,7 +57,7 @@ public class LoginController {
     public void handleRegisterRedirect() {
         try {
             // Load Register.fxml
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/application/User/UserUI/Register.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/application/UserUI/Register.fxml"));
             Parent root = loader.load();
 
             Stage stage = new Stage();
@@ -78,7 +78,7 @@ public class LoginController {
 
     private void loadMainPage(User user) {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/application/today.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/application/TodayUI/today.fxml"));
             Parent root = loader.load();
 
             TodayController controller = loader.getController();

@@ -8,7 +8,7 @@
 <?import javafx.scene.control.ScrollPane?>
 
 <BorderPane xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
-            fx:controller="application.TodayController.TodayController">
+            fx:controller="application.TodayUI.TodayController">
     <left>
         <VBox spacing="10" VBox.vgrow="ALWAYS">
             <Label text="Navigation" style="-fx-font-size: 18px; -fx-font-weight: bold;" />

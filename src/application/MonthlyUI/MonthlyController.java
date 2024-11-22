@@ -1,4 +1,4 @@
-package application.monthly.ui;
+package application.MonthlyUI;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -34,8 +34,9 @@ import java.util.Optional;
 
 import application.ToDoItem;
 import application.ToDoManager;
-import application.TodayController.TodayController;
+import application.TodayUI.TodayController;
 import application.User.User;
+import application.WeeklyUI.WeeklyController;
 
 public class MonthlyController {
     @FXML
@@ -85,11 +86,14 @@ public class MonthlyController {
         // Select "Monthly" by default
         navigationList.getSelectionModel().select("Monthly");
 
-        // Updated navigation listener
+     // Updated navigation listener
         navigationList.getSelectionModel().selectedItemProperty().addListener(
             (observable, oldValue, newValue) -> {
-                if (newValue != null && !newValue.equals("Monthly")) {
-                    loadTodayView(newValue);
+                if (newValue != null && newValue.equals("Weekly")) {
+                	loadWeeklyView();
+                }
+                else if(newValue != null && (newValue.equals("Inbox") || newValue.equals("Today"))){
+                	loadTodayView(newValue);
                 }
             }
         );
@@ -99,10 +103,10 @@ public class MonthlyController {
         populateMonthlyTasks();
     }
 
-    @FXML
-    public void setStage(Stage stage) {
-        stage.setMaximized(true); // 設定視窗最大化
-    }
+//    @FXML
+//    public void setStage(Stage stage) {
+//        stage.setMaximized(true); // 設定視窗最大化
+//    }
 
     @FXML
     private void handlePreviousMonth() {
@@ -199,33 +203,8 @@ public class MonthlyController {
             
         }
         populateMonthlyTasks();
-
-//        // 填補空白格子
-//        for (int i = 0; i < 7; i++) {
-//            if (i < dayOfWeek) {
-//                addEmptyCell(i, 1);
-//            }
-//            if (column <= 6 && column > 0 && (daysInMonth + dayOfWeek) % 7 != 0) {
-//                addEmptyCell(column, row);
-//                column++;
-//            }
-//        }
     }
 
-
-
-//    private void addEmptyCell(int column, int row) {
-////        // 用 Label 填充空白格子
-////        Label emptyLabel = new Label(" ");
-////        emptyLabel.setStyle("-fx-border-color: black; -fx-alignment: center; -fx-font-size: 14;");
-////        emptyLabel.setPrefSize(80, 80);
-////        calendarGrid.add(emptyLabel, column, row);
-//
-//        // 添加斜線
-//        Line line = new Line(10, 10, 70, 70); // 斜線從左上到右下
-//        line.setStroke(Color.GRAY);
-//        calendarGrid.add(line, column, row);
-//    }
     
     private void loadTodayView(String selectedItem) {
         try {
@@ -234,7 +213,7 @@ public class MonthlyController {
             double width = currentStage.getWidth();
             double height = currentStage.getHeight();
             
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/application/today.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/application/TodayUI/today.fxml"));
             Parent root = loader.load();
 
             TodayController controller = loader.getController();
@@ -255,6 +234,37 @@ public class MonthlyController {
             alert.setTitle("Navigation Error");
             alert.setHeaderText(null);
             alert.setContentText("Could not load the today view. Error: " + e.getMessage());
+            alert.showAndWait();
+        }
+    }
+    
+    private void loadWeeklyView() {
+        try {
+            // Get current window dimensions
+            Stage currentStage = (Stage) navigationList.getScene().getWindow();
+            double width = currentStage.getWidth();
+            double height = currentStage.getHeight();
+            
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/application/WeeklyUI/weekly.fxml"));
+            Parent root = loader.load();
+
+            WeeklyController controller = loader.getController();
+            controller.initialize(currentUser);
+
+            Scene scene = new Scene(root);
+            scene.getStylesheets().add(getClass().getResource("/application/application.css").toExternalForm());
+
+            // Apply the size before showing
+            currentStage.setScene(scene);
+            currentStage.setTitle("To-Do List - Weekly View");
+            currentStage.setWidth(width);
+            currentStage.setHeight(height);
+        } catch (IOException e) {
+            e.printStackTrace();
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Navigation Error");
+            alert.setHeaderText(null);
+            alert.setContentText("Could not load the weekly view. Error: " + e.getMessage());
             alert.showAndWait();
         }
     }

@@ -5,7 +5,7 @@
 <?import javafx.scene.layout.*?>
 
 <VBox xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
-      fx:controller="application.User.UserUIController.RegisterController" alignment="CENTER" spacing="10" style="-fx-padding: 20;">
+      fx:controller="application.UserUI.RegisterController" alignment="CENTER" spacing="10" style="-fx-padding: 20;">
     
     <!-- Title -->
     <Label text="Register" style="-fx-font-size: 24; -fx-font-weight: bold;" />

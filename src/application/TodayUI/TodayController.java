@@ -1,10 +1,10 @@
-package application.TodayController;
+package application.TodayUI;
 
 import application.ToDoItem;
 import application.ToDoManager;
+import application.MonthlyUI.MonthlyController;
 import application.User.User;
-import application.monthly.ui.MonthlyController;
-import application.weekly.WeeklyController;
+import application.WeeklyUI.WeeklyController;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -330,7 +330,7 @@ public class TodayController {
             double width = currentStage.getWidth();
             double height = currentStage.getHeight();
             
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/application/weekly/weekly.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/application/WeeklyUI/weekly.fxml"));
             Parent root = loader.load();
 
             WeeklyController controller = loader.getController();
@@ -361,7 +361,7 @@ public class TodayController {
             double width = currentStage.getWidth();
             double height = currentStage.getHeight();
             
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/application/monthly/ui/Monthly.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/application/MonthlyUI/Monthly.fxml"));
             Parent root = loader.load();
 
             MonthlyController controller = loader.getController();
