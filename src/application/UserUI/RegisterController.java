@@ -1,4 +1,4 @@
-package application.User.UserUIController;
+package application.UserUI;
 
 import application.User.NormalUser;
 import application.User.UserDirectory;
@@ -75,7 +75,7 @@ public class RegisterController {
     public void handleBackToLogin() {
         try {
             // Load Login.fxml
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/application/User/UserUI/Login.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/application/UserUI/Login.fxml"));
             Parent root = loader.load();
 
             // Show the Login window

@@ -5,7 +5,7 @@
 <?import javafx.scene.layout.*?>
 
 <VBox xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
-      fx:controller="application.User.UserUIController.LoginController" alignment="CENTER" spacing="10" style="-fx-padding: 20;">
+      fx:controller="application.UserUI.LoginController" alignment="CENTER" spacing="10" style="-fx-padding: 20;">
     
     <!-- Title -->
     <Label text="To Do List" style="-fx-font-size: 24; -fx-font-weight: bold;" />

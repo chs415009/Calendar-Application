@@ -1,8 +1,9 @@
-package application.weekly;
+package application.WeeklyUI;
 
 import application.ToDoItem;
 import application.ToDoManager;
-import application.TodayController.TodayController;
+import application.MonthlyUI.MonthlyController;
+import application.TodayUI.TodayController;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -26,8 +27,6 @@ import application.User.User;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.RowConstraints;
-import javafx.scene.layout.HBox;
-import javafx.scene.control.*;
 
 public class WeeklyController {
 
@@ -55,7 +54,7 @@ public class WeeklyController {
         currentWeekStart = LocalDate.now().with(WeekFields.of(Locale.getDefault()).dayOfWeek(), 1);
         
         // Set up navigation list
-        navigationItems = FXCollections.observableArrayList("Inbox", "Today", "Weekly");
+        navigationItems = FXCollections.observableArrayList("Inbox", "Today", "Weekly", "Monthly");
 
         navigationList.setItems(navigationItems);
 
@@ -84,8 +83,11 @@ public class WeeklyController {
         // Updated navigation listener
         navigationList.getSelectionModel().selectedItemProperty().addListener(
             (observable, oldValue, newValue) -> {
-                if (newValue != null && !newValue.equals("Weekly")) {
-                    loadTodayView(newValue);
+                if (newValue != null && newValue.equals("Monthly")) {
+                	loadMonthlyView();
+                }
+                else if(newValue != null && (newValue.equals("Inbox") || newValue.equals("Today"))){
+                	loadTodayView(newValue);
                 }
             }
         );
@@ -222,7 +224,7 @@ public class WeeklyController {
             double width = currentStage.getWidth();
             double height = currentStage.getHeight();
             
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/application/today.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/application/TodayUI/today.fxml"));
             Parent root = loader.load();
 
             TodayController controller = loader.getController();
@@ -243,6 +245,37 @@ public class WeeklyController {
             alert.setTitle("Navigation Error");
             alert.setHeaderText(null);
             alert.setContentText("Could not load the today view. Error: " + e.getMessage());
+            alert.showAndWait();
+        }
+    }
+    
+    public void loadMonthlyView() {
+    	try {
+            // Get current window dimensions
+            Stage currentStage = (Stage) navigationList.getScene().getWindow();
+            double width = currentStage.getWidth();
+            double height = currentStage.getHeight();
+            
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/application/MonthlyUI/Monthly.fxml"));
+            Parent root = loader.load();
+
+            MonthlyController controller = loader.getController();
+            controller.initialize(currentUser);
+
+            Scene scene = new Scene(root);
+            scene.getStylesheets().add(getClass().getResource("/application/application.css").toExternalForm());
+
+            // Apply the size before showing
+            currentStage.setScene(scene);
+            currentStage.setTitle("To-Do List - Monthly View");
+            currentStage.setWidth(width);
+            currentStage.setHeight(height);
+        } catch (IOException e) {
+            e.printStackTrace();
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Navigation Error");
+            alert.setHeaderText(null);
+            alert.setContentText("Could not load the Monthly view. Error: " + e.getMessage());
             alert.showAndWait();
         }
     }
@@ -270,6 +303,11 @@ public class WeeklyController {
             populateWeeklyTasks();
             taskDetails.setText("Select a task to view its details");
         }
+    }
+    
+    @FXML
+    private void handleLogout() {
+        //Feiyu:.....
     }
 
     private void showAddTaskDialog(ToDoItem task) {

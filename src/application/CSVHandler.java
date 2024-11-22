@@ -1,6 +1,4 @@
-package application.csvhandler;
-
-import application.ToDoItem;
+package application;
 
 import java.io.*;
 import java.time.LocalDate;
