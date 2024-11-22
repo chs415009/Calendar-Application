@@ -8,7 +8,7 @@
 <?import javafx.scene.control.ScrollPane?>
 
 <BorderPane xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
-            fx:controller="application.TodayUI.TodayController">
+            fx:controller="application.InboxUI.InboxController">
     <left>
         <VBox spacing="10" VBox.vgrow="ALWAYS">
             <Label text="Navigation" style="-fx-font-size: 18px; -fx-font-weight: bold;" />
@@ -17,18 +17,29 @@
         </VBox>
     </left>
     <center>
-        <VBox spacing="10" VBox.vgrow="ALWAYS" alignment="CENTER">
-            <!-- Centered Label for Date (Visible in "Today" View) -->
-            <Label fx:id="dateLabel" style="-fx-font-size: 18px; -fx-font-weight: bold;" />
-            <!-- Scrollable Task List -->
+        <VBox spacing="10" VBox.vgrow="ALWAYS">
+            <!-- Fixed Tasks Title -->
+            <Label fx:id="tasksTitle" text="Tasks" style="-fx-font-size: 18px; -fx-font-weight: bold;" />
+            <!-- Filter Buttons -->
+            <HBox fx:id="filterSection" spacing="10" alignment="CENTER">
+                <Button text="All" onAction="#handleFilterAll" />
+                <Button text="Errand" onAction="#handleFilterErrand" />
+                <Button text="Home" onAction="#handleFilterHome" />
+                <Button text="Office" onAction="#handleFilterOffice" />
+                <Button text="Important" onAction="#handleFilterImportant" />
+                <Button text="Pending" onAction="#handleFilterPending" />
+            </HBox>
+            <!-- Task List -->
             <ScrollPane fitToWidth="true" fitToHeight="true" VBox.vgrow="ALWAYS">
                 <ListView fx:id="taskListView" />
             </ScrollPane>
+            <!-- Add/Edit/Delete Buttons -->
             <HBox spacing="10" alignment="CENTER">
                 <Button text="Add Task" onAction="#handleAddTask" />
                 <Button text="Edit Task" onAction="#handleEditTask" />
                 <Button text="Delete Task" onAction="#handleDeleteTask" />
             </HBox>
+            <!-- Task Details -->
             <VBox spacing="5">
                 <Label text="Task Details" style="-fx-font-size: 16px; -fx-font-weight: bold;" />
                 <ScrollPane fitToWidth="true" prefHeight="150" maxHeight="150">

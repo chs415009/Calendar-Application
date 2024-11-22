@@ -80,17 +80,27 @@ public class WeeklyController {
         // Select "Weekly" by default
         navigationList.getSelectionModel().select("Weekly");
 
-        // Updated navigation listener
         navigationList.getSelectionModel().selectedItemProperty().addListener(
-            (observable, oldValue, newValue) -> {
-                if (newValue != null && newValue.equals("Monthly")) {
-                	loadMonthlyView();
-                }
-                else if(newValue != null && (newValue.equals("Inbox") || newValue.equals("Today"))){
-                	loadTodayView(newValue);
-                }
-            }
-        );
+        	    (observable, oldValue, newValue) -> {
+        	        if (newValue != null) {
+        	            switch (newValue) {
+        	                case "Inbox":
+        	                    loadInboxView();
+        	                    break;
+        	                case "Today":
+        	                    loadTodayView(newValue);
+        	                    break;
+        	                case "Monthly":
+        	                    loadMonthlyView();
+        	                    break;
+        	                default:
+        	                    // Do nothing for "Weekly" since this is the current view.
+        	                    break;
+        	            }
+        	        }
+        	    }
+        	);
+
         
         // Set up week navigation
         previousWeekButton.setOnAction(e -> navigateWeek(-1));
@@ -423,4 +433,37 @@ public class WeeklyController {
             alert.showAndWait();
         }
     }
+    
+    private void loadInboxView() {
+        try {
+            // Get current window dimensions
+            Stage currentStage = (Stage) navigationList.getScene().getWindow();
+            double width = currentStage.getWidth();
+            double height = currentStage.getHeight();
+
+            // Load the Inbox FXML
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/application/InboxUI/inbox.fxml"));
+            Parent root = loader.load();
+
+            // Get the controller and initialize it
+            application.InboxUI.InboxController controller = loader.getController();
+            controller.initialize(currentUser);
+
+            // Set the new scene
+            Scene scene = new Scene(root);
+            scene.getStylesheets().add(getClass().getResource("/application/application.css").toExternalForm());
+            currentStage.setScene(scene);
+            currentStage.setTitle("To-Do List - Inbox");
+            currentStage.setWidth(width);
+            currentStage.setHeight(height);
+        } catch (IOException e) {
+            e.printStackTrace();
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Navigation Error");
+            alert.setHeaderText(null);
+            alert.setContentText("Could not load the Inbox view. Error: " + e.getMessage());
+            alert.showAndWait();
+        }
+    }
+
 }
