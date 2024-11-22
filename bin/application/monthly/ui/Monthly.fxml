@@ -1,21 +1,55 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.VBox?>
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.geometry.Insets?>
 
-<VBox xmlns:fx="http://javafx.com/fxml" fx:controller="application.monthly.ui.MonthlyController" 
-      alignment="TOP_CENTER" spacing="10" style="-fx-padding: 20;">
-    <!-- 最大化視窗 -->
-    <HBox fx:id="headerBox" alignment="CENTER" spacing="20" style="-fx-padding: 20;" prefHeight="100">
-        <Button text="Previous" onAction="#handlePreviousMonth" style="-fx-font-size: 18;"/>
-        <Label fx:id="monthLabel" style="-fx-font-size: 30; -fx-font-weight: bold;"/>
-        <Button text="Next" onAction="#handleNextMonth" style="-fx-font-size: 18;"/>
-    </HBox>
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="application.monthly.ui.MonthlyController">
     
-    <!-- 用 GridPane 顯示日期，並讓它保持在中間 -->
-    <GridPane fx:id="calendarGrid" style="-fx-grid-lines-visible: true; -fx-padding: 20;" 
-              hgap="5" vgap="5" alignment="CENTER" />
-</VBox>
+    <left>
+        <VBox spacing="10" VBox.vgrow="ALWAYS">
+            <Label text="Navigation" style="-fx-font-size: 18px; -fx-font-weight: bold;" />
+            <ListView fx:id="navigationList" VBox.vgrow="ALWAYS" />
+        </VBox>
+    </left>
+
+    <center>
+        <VBox spacing="10" VBox.vgrow="ALWAYS">
+            <!-- Month Navigation -->
+            <HBox spacing="10" alignment="CENTER" style="-fx-padding: 0 0 10 0;">
+                <Button text="Previous" onAction="#handlePreviousMonth"/>
+                <Label fx:id="monthLabel" style="-fx-font-size: 16px; -fx-font-weight: bold;"/>
+                <Button text="Next" onAction="#handleNextMonth"/>
+            </HBox>
+
+            
+            <!-- Main Calendar Grid - Takes most space -->
+            <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS" maxHeight="400">
+                <GridPane fx:id="calendarGrid" style="-fx-grid-lines-visible: true; -fx-padding: 20;" 
+                          hgap="5" vgap="5" alignment="CENTER" />
+            </ScrollPane>
+
+            <!-- Task Controls just below the grid -->
+            <HBox spacing="10" alignment="CENTER">
+                <Button text="Add Task" onAction="#handleAddTask" />
+                <Button text="Edit Task" onAction="#handleEditTask" />
+                <Button text="Delete Task" onAction="#handleDeleteTask" />
+            </HBox>
+
+            <!-- Task Details at the bottom -->
+            <VBox spacing="5">
+                <Label text="Task Details" style="-fx-font-size: 16px; -fx-font-weight: bold;" />
+                <ScrollPane fitToWidth="true" prefHeight="150" maxHeight="150">
+                    <Label fx:id="taskDetails" text="Select a task to view its details" wrapText="true" />
+                </ScrollPane>
+            </VBox>
+        </VBox>
+    </center>
+</BorderPane>
+
+
+

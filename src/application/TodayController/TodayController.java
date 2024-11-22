@@ -3,6 +3,7 @@ package application.TodayController;
 import application.ToDoItem;
 import application.ToDoManager;
 import application.User.User;
+import application.monthly.ui.MonthlyController;
 import application.weekly.WeeklyController;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -46,7 +47,7 @@ public class TodayController {
         Locale.setDefault(Locale.ENGLISH);
 
         // Populate the navigation items
-        navigationItems = FXCollections.observableArrayList("Inbox", "Today", "Weekly");
+        navigationItems = FXCollections.observableArrayList("Inbox", "Today", "Weekly", "Monthly");
         navigationList.setItems(navigationItems);
 
         // Listen to changes in navigation selection
@@ -96,6 +97,14 @@ public class TodayController {
         navigationList.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if ("Weekly".equals(newValue)) {
                 loadWeeklyView();
+            } else {
+                updateTasks(newValue);
+            }
+        });
+        
+        navigationList.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            if ("Monthly".equals(newValue)) {
+                loadMonthlyView();
             } else {
                 updateTasks(newValue);
             }
@@ -341,6 +350,37 @@ public class TodayController {
             alert.setTitle("Navigation Error");
             alert.setHeaderText(null);
             alert.setContentText("Could not load the weekly view. Error: " + e.getMessage());
+            alert.showAndWait();
+        }
+    }
+    
+    private void loadMonthlyView() {
+    	try {
+            // Get current window dimensions
+            Stage currentStage = (Stage) navigationList.getScene().getWindow();
+            double width = currentStage.getWidth();
+            double height = currentStage.getHeight();
+            
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/application/monthly/ui/Monthly.fxml"));
+            Parent root = loader.load();
+
+            MonthlyController controller = loader.getController();
+            controller.initialize(currentUser);
+
+            Scene scene = new Scene(root);
+            scene.getStylesheets().add(getClass().getResource("/application/application.css").toExternalForm());
+
+            // Apply the size before showing
+            currentStage.setScene(scene);
+            currentStage.setTitle("To-Do List - Monthly View");
+            currentStage.setWidth(width);
+            currentStage.setHeight(height);
+        } catch (IOException e) {
+            e.printStackTrace();
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Navigation Error");
+            alert.setHeaderText(null);
+            alert.setContentText("Could not load the Monthly view. Error: " + e.getMessage());
             alert.showAndWait();
         }
     }
