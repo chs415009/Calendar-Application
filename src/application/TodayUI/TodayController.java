@@ -227,6 +227,12 @@ public class TodayController {
             taskDetails.setText("Select a task to view its details");
         }
     }
+    
+    @FXML
+    private void handleLogout() {
+        //Feiyu:.....
+    }
+    
 
     private void showAddTaskDialog(ToDoItem task) {
         Dialog<ToDoItem> dialog = new Dialog<>();

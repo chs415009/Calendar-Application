@@ -15,6 +15,7 @@
         <VBox spacing="10" VBox.vgrow="ALWAYS">
             <Label text="Navigation" style="-fx-font-size: 18px; -fx-font-weight: bold;" />
             <ListView fx:id="navigationList" VBox.vgrow="ALWAYS" />
+            <Button text="Logout" onAction="#handleLogout" />
         </VBox>
     </left>
 
