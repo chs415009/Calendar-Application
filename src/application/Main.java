@@ -15,19 +15,18 @@ public class Main extends Application {
     @Override
     public void start(Stage primaryStage) {
         try {
-            // 加载用户数据
-            userDirectory = UserDirectory.loadUsersFromFile(FILE_NAME);
+            UserDirectory userDirectory = UserDirectory.loadUsersFromFile("src/application/users.json");
 
+            // Load Login.fxml
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/application/UserUI/Login.fxml"));
             Parent root = loader.load();
 
-            // 设置 UserDirectory 给控制器
-            LoginController controller = loader.getController();
-            controller.setUserDirectory(userDirectory);
+            // Set the UserDirectory in the LoginController
+            LoginController loginController = loader.getController();
+            loginController.setUserDirectory(userDirectory);
 
-            Scene scene = new Scene(root, 400, 300);
-            primaryStage.setTitle("To Do List - Login");
-            primaryStage.setScene(scene);
+            primaryStage.setScene(new Scene(root, 400, 300));
+            primaryStage.setTitle("Login");
             primaryStage.show();
         } catch (Exception e) {
             e.printStackTrace();

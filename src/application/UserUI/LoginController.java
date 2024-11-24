@@ -72,6 +72,10 @@ public class LoginController {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/application/UserUI/Register.fxml"));
             Parent root = loader.load();
 
+            // Set the UserDirectory in the RegisterController
+            RegisterController registerController = loader.getController();
+            registerController.setUserDirectory(userDirectory);
+
             Stage stage = new Stage();
             stage.setTitle("Register");
             stage.setScene(new Scene(root, 400, 300));

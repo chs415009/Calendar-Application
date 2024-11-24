@@ -30,11 +30,10 @@ public class RegisterController {
     @FXML
     private Button backButton;
 
-    private static UserDirectory userDirectory = new UserDirectory(); // UserDirectory instance
+    private UserDirectory userDirectory;
 
-    // Getter method to access userDirectory
-    public static UserDirectory getUserDirectory() {
-        return userDirectory;
+    public void setUserDirectory(UserDirectory userDirectory) {
+        this.userDirectory = userDirectory;
     }
 
     @FXML

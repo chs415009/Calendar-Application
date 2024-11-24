@@ -26,25 +26,26 @@ public class UserDirectory {
         this.vipUsers = new ArrayList<>();
     }
 
-    // Add NormalUser
     public boolean addNormalUser(NormalUser user) {
+        // 检查普通用户和 VIP 用户列表中是否存在相同的用户名
         if (getNormalUserByUsername(user.getUsername()) != null || getVIPUserByUsername(user.getUsername()) != null) {
-            return false; // Username already exists in either list
+            return false; // 用户名已存在
         } else {
             normalUsers.add(user);
-            return true; // User added successfully
+            return true; // 成功添加用户
         }
     }
 
-    // Add VIPUser
     public boolean addVIPUser(VIPUser user) {
+        // 检查普通用户和 VIP 用户列表中是否存在相同的用户名
         if (getNormalUserByUsername(user.getUsername()) != null || getVIPUserByUsername(user.getUsername()) != null) {
-            return false; // Username already exists in either list
+            return false; // 用户名已存在
         } else {
             vipUsers.add(user);
-            return true; // User added successfully
+            return true; // 成功添加用户
         }
     }
+
 
     // Get NormalUser by username
     public NormalUser getNormalUserByUsername(String username) {
