@@ -1,7 +1,6 @@
 package application.UserUI;
 
 import application.InboxUI.InboxController;
-import application.TodayUI.TodayController;
 import application.User.User;
 import application.User.UserDirectory;
 import application.User.UserType;
@@ -17,6 +16,14 @@ import javafx.stage.Stage;
 
 public class LoginController {
 
+    // 添加 userDirectory 作为成员变量
+    private UserDirectory userDirectory;
+
+    // Setter 方法，用于将 userDirectory 设置为 Main 类中的 UserDirectory 实例
+    public void setUserDirectory(UserDirectory userDirectory) {
+        this.userDirectory = userDirectory;
+    }
+
     @FXML
     private TextField usernameField;
 
@@ -31,28 +38,32 @@ public class LoginController {
 
     @FXML
     public void handleLogin() {
+        if (userDirectory == null) {
+            System.out.println("userDirectory is null in handleLogin");
+            showAlert(Alert.AlertType.ERROR, "Error", "User directory is not initialized.");
+            return;
+        }
+
         String username = usernameField.getText();
         String password = passwordField.getText();
 
-        // Access userDirectory via the getter
-        UserDirectory userDirectory = RegisterController.getUserDirectory();
-
         User user = userDirectory.login(username, password);
         if (user != null) {
-            // 用戶登入成功
+            // 用户登录成功
             if (user.getUserType().equals(UserType.VIP)) {
                 showAlert(Alert.AlertType.INFORMATION, "Login Successful", "Welcome, VIP " + user.getUsername() + "!");
             } else if (user.getUserType().equals(UserType.NORMAL)) {
                 showAlert(Alert.AlertType.INFORMATION, "Login Successful", "Welcome, " + user.getUsername() + "!");
             }
 
-            // 加載主頁面
+            // 加载主页面
             loadMainPage(user);
         } else {
-            // 用戶登入失敗
+            // 用户登录失败
             showAlert(Alert.AlertType.ERROR, "Login Failed", "Invalid username or password.");
         }
     }
+
 
     @FXML
     public void handleRegisterRedirect() {
@@ -83,7 +94,8 @@ public class LoginController {
             Parent root = loader.load();
 
             InboxController controller = loader.getController();
-            controller.initialize(user); // Pass the logged-in user
+            controller.initialize(user); // Ensure user and toDoManager are correctly passed
+            controller.setUserDirectory(userDirectory); // Pass userDirectory to InboxController
 
             Stage stage = (Stage) usernameField.getScene().getWindow();
             stage.setScene(new Scene(root, 800, 600));
@@ -93,6 +105,9 @@ public class LoginController {
             e.printStackTrace();
         }
     }
+
+
+
 
 
     private void showAlert(Alert.AlertType alertType, String title, String message) {

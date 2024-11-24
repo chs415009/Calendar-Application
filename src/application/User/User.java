@@ -15,11 +15,11 @@ public abstract class User {
 
     // constructor
     public User(String username, String password, UserType userType) {
-    	this.username = username;
+        this.username = username;
         this.password = password;
         this.userType = userType;
         this.toDoList = new ArrayList<>(); // Initialize task list
-        this.toDoManager = new ToDoManager(this); // Pass this user to the manager
+        this.toDoManager = new ToDoManager(this); // Initialize ToDoManager here
     }
 
     // Getter method
@@ -42,9 +42,9 @@ public abstract class User {
     public ToDoManager getToDoManager() {
         return toDoManager; // Return the user's ToDoManager
     }
+    
+    public void setToDoManager(ToDoManager toDoManager) {
+        this.toDoManager = toDoManager;
+    }
 
-    // abstract method just prepare for probably future use
-    public abstract void accessFeatures();
-    
-    
 }

@@ -1,0 +1,48 @@
+{
+  "normalUsers": [
+    {
+      "username": "123",
+      "password": "123",
+      "userType": "NORMAL",
+      "toDoList": [
+        {
+          "title": "Buy groceries",
+          "description": "Buy milk, eggs, and bread",
+          "dueDate": "2024-11-25",
+          "priority": "MEDIUM",
+          "tag": "ERRAND",
+          "isCompleted": false
+        },
+        {
+          "title": "Finish project report",
+          "description": "Complete the final report by the end of the month",
+          "dueDate": "2024-11-30",
+          "priority": "HIGH",
+          "tag": "OFFICE",
+          "isCompleted": false
+        }
+      ],
+      "toDoManager": {
+        "toDoList": [
+          {
+            "title": "Buy groceries",
+            "description": "Buy milk, eggs, and bread",
+            "dueDate": "2024-11-25",
+            "priority": "MEDIUM",
+            "tag": "ERRAND",
+            "isCompleted": false
+          },
+          {
+            "title": "Finish project report",
+            "description": "Complete the final report by the end of the month",
+            "dueDate": "2024-11-30",
+            "priority": "HIGH",
+            "tag": "OFFICE",
+            "isCompleted": false
+          }
+        ]
+      }
+    }
+  ],
+  "vipUsers": []
+}

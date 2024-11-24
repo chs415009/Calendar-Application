@@ -6,6 +6,7 @@ import application.MonthlyUI.MonthlyController;
 import application.TodayUI.TodayController;
 import application.User.User;
 import application.WeeklyUI.WeeklyController;
+import application.User.UserDirectory;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -44,13 +45,21 @@ public class InboxController {
     private ObservableList<String> navigationItems;
     private ToDoManager toDoManager;
     private User currentUser;
+    private UserDirectory userDirectory;
     
+    public void setUserDirectory(UserDirectory userDirectory) {
+        this.userDirectory = userDirectory;
+    }
 
     public void initialize(User user) {
-    	this.currentUser = user;
+        this.currentUser = user;
         this.toDoManager = user.getToDoManager(); // Use the logged-in user's ToDoManager
         Locale.setDefault(Locale.ENGLISH);
 
+        if (this.toDoManager == null) {
+            throw new IllegalStateException("ToDoManager is not initialized");
+        }
+        
         // Show "Tasks" title and filter section by default
         tasksTitle.setVisible(true);
         tasksTitle.setManaged(true);
@@ -206,6 +215,9 @@ public class InboxController {
         // Refresh the task list to display the new task immediately
         String selectedCategory = navigationList.getSelectionModel().getSelectedItem();
         updateTasks(selectedCategory); // Update the tasks based on the current category
+        if (userDirectory != null) {
+            userDirectory.saveUsersToFile("users.json");
+        }
     }
     
     @FXML
@@ -222,6 +234,9 @@ public class InboxController {
             alert.setContentText("Please select a task to edit.");
             alert.showAndWait();
         }
+        if (userDirectory != null) {
+            userDirectory.saveUsersToFile("users.json");
+        }
     }
 
     @FXML
@@ -234,11 +249,20 @@ public class InboxController {
             // Clear the task details since the task was deleted
             taskDetails.setText("Select a task to view its details");
         }
+        if (userDirectory != null) {
+            userDirectory.saveUsersToFile("users.json");
+        }
     }
     
     @FXML
     private void handleLogout() {
         //Feiyu:.....
+    	if (userDirectory != null) {
+            userDirectory.saveUsersToFile("users.json");
+        }
+
+        Stage stage = (Stage) taskListView.getScene().getWindow();
+        stage.close();
     }
     
 
