@@ -2,6 +2,7 @@ package application.UserUI;
 
 import application.User.NormalUser;
 import application.User.UserDirectory;
+import application.User.UserDirectoryHolder;
 import application.User.VIPUser;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -36,6 +37,7 @@ public class RegisterController {
     @FXML
     private Button backButton;
 
+    
     @FXML
     public void handleNormalRegister() {
         String username = usernameField.getText();
@@ -50,6 +52,7 @@ public class RegisterController {
                 showAlert(Alert.AlertType.ERROR, "Registration Failed", "Username already exists.");
             }
         }
+        UserDirectoryHolder.setUserDirectory(userDirectory);
     }
 
     @FXML
@@ -67,6 +70,39 @@ public class RegisterController {
             }
         }
     }
+    
+    public void handleBackToLogin() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/application/UserUI/Login.fxml"));
+            Parent root = loader.load();
+
+            // 获取 LoginController
+            LoginController loginController = loader.getController();
+
+            // 通过 UserDirectoryHolder 获取全局的 userDirectory 实例
+            loginController.setUserDirectory(UserDirectoryHolder.getUserDirectory());
+
+            // 获取当前窗口并加载登录页面
+            Stage currentStage = (Stage) backButton.getScene().getWindow();
+            Scene scene = new Scene(root, 400, 300);
+            scene.getStylesheets().add(getClass().getResource("/application/application.css").toExternalForm());
+
+            currentStage.setScene(scene);
+            currentStage.setTitle("Login");
+            currentStage.centerOnScreen();
+            currentStage.show();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Navigation Error");
+            alert.setHeaderText(null);
+            alert.setContentText("Could not load the login view. Error: " + e.getMessage());
+            alert.showAndWait();
+        }
+    }
+
+
 
     private boolean validateInput(String username, String password) {
         if (username == null || username.isEmpty() || password == null || password.isEmpty()) {

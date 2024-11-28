@@ -24,6 +24,9 @@ import java.util.Locale;
 import java.util.List;
 import java.util.Optional;
 import application.User.User;
+import application.User.UserDirectory;
+import application.User.UserDirectoryHolder;
+import application.UserUI.LoginController;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.RowConstraints;
@@ -47,6 +50,9 @@ public class WeeklyController {
     private ToDoManager toDoManager;
     private User currentUser;
     private ObservableList<String> navigationItems;
+    private UserDirectory userDirectory;
+    
+    
     
     public void initialize(User user) {
         this.currentUser = user;
@@ -317,7 +323,36 @@ public class WeeklyController {
     
     @FXML
     private void handleLogout() {
-        //Feiyu:.....
+        UserDirectory userDirectory = UserDirectoryHolder.getUserDirectory();
+        if (userDirectory != null) {
+            userDirectory.saveUsersToFile("src/application/users.json");
+        }
+
+        try {
+            // Load Login view
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/application/UserUI/Login.fxml"));
+            Parent root = loader.load();
+
+            LoginController loginController = loader.getController();
+            loginController.setUserDirectory(userDirectory); // 传递 userDirectory
+
+            Stage currentStage = (Stage) navigationList.getScene().getWindow();
+            Scene scene = new Scene(root, 400, 300);
+            scene.getStylesheets().add(getClass().getResource("/application/application.css").toExternalForm());
+
+            currentStage.setScene(scene);
+            currentStage.setTitle("Login");
+            currentStage.setWidth(400);
+            currentStage.setHeight(300);
+            currentStage.centerOnScreen();
+        } catch (IOException e) {
+            e.printStackTrace();
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Logout Error");
+            alert.setHeaderText(null);
+            alert.setContentText("Could not load the login view. Error: " + e.getMessage());
+            alert.showAndWait();
+        }
     }
 
     private void showAddTaskDialog(ToDoItem task) {

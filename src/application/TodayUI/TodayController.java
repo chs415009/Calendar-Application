@@ -24,6 +24,7 @@ import java.util.Locale;
 import java.util.Optional;
 
 import application.User.UserDirectory;
+import application.User.UserDirectoryHolder;
 import application.UserUI.LoginController;
 
 public class TodayController {
@@ -48,9 +49,7 @@ public class TodayController {
     private User currentUser;
     private UserDirectory userDirectory;
     
-    public void setUserDirectory(UserDirectory userDirectory) {
-        this.userDirectory = userDirectory;
-    }
+    
 
     public void initialize(User user) {
     	this.currentUser = user;
@@ -209,24 +208,30 @@ public class TodayController {
     
     @FXML
     private void handleLogout() {
+        // 保存用户数据到文件
         if (userDirectory != null) {
             userDirectory.saveUsersToFile("src/application/users.json");
         }
 
         try {
+            // 加载登录页面
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/application/UserUI/Login.fxml"));
             Parent root = loader.load();
 
+            // 设置登录页面控制器中的 userDirectory
             LoginController loginController = loader.getController();
-            loginController.setUserDirectory(userDirectory);
+            loginController.setUserDirectory(UserDirectoryHolder.getUserDirectory());
 
+            // 显示登录窗口
             Stage currentStage = (Stage) taskListView.getScene().getWindow();
-
-            Scene scene = new Scene(root, 400, 300); 
+            Scene scene = new Scene(root, 400, 300);
             scene.getStylesheets().add(getClass().getResource("/application/application.css").toExternalForm());
 
             currentStage.setScene(scene);
             currentStage.setTitle("Login");
+            currentStage.setWidth(400);
+            currentStage.setHeight(300);
+            currentStage.centerOnScreen();
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -237,6 +242,7 @@ public class TodayController {
             alert.showAndWait();
         }
     }
+
 
 
     

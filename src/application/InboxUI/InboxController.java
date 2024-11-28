@@ -7,6 +7,7 @@ import application.TodayUI.TodayController;
 import application.User.User;
 import application.WeeklyUI.WeeklyController;
 import application.User.UserDirectory;
+import application.User.UserDirectoryHolder;
 import application.UserUI.LoginController;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -48,9 +49,6 @@ public class InboxController {
     private User currentUser;
     private UserDirectory userDirectory;
     
-    public void setUserDirectory(UserDirectory userDirectory) {
-        this.userDirectory = userDirectory;
-    }
 
     public void initialize(User user) {
         this.currentUser = user;
@@ -216,9 +214,7 @@ public class InboxController {
         // Refresh the task list to display the new task immediately
         String selectedCategory = navigationList.getSelectionModel().getSelectedItem();
         updateTasks(selectedCategory); // Update the tasks based on the current category
-        if (userDirectory != null) {
-            userDirectory.saveUsersToFile("users.json");
-        }
+
     }
     
     @FXML
@@ -235,9 +231,7 @@ public class InboxController {
             alert.setContentText("Please select a task to edit.");
             alert.showAndWait();
         }
-        if (userDirectory != null) {
-            userDirectory.saveUsersToFile("users.json");
-        }
+
     }
 
     @FXML
@@ -250,13 +244,12 @@ public class InboxController {
             // Clear the task details since the task was deleted
             taskDetails.setText("Select a task to view its details");
         }
-        if (userDirectory != null) {
-            userDirectory.saveUsersToFile("users.json");
-        }
+
     }
     
     @FXML
     private void handleLogout() {
+        // 保存用户数据
         if (userDirectory != null) {
             userDirectory.saveUsersToFile("src/application/users.json");
         }
@@ -266,15 +259,17 @@ public class InboxController {
             Parent root = loader.load();
 
             LoginController loginController = loader.getController();
-            loginController.setUserDirectory(userDirectory);
+            loginController.setUserDirectory(UserDirectoryHolder.getUserDirectory());
 
             Stage currentStage = (Stage) taskListView.getScene().getWindow();
-
-            Scene scene = new Scene(root, 400, 300); 
+            Scene scene = new Scene(root, 400, 300);
             scene.getStylesheets().add(getClass().getResource("/application/application.css").toExternalForm());
 
             currentStage.setScene(scene);
             currentStage.setTitle("Login");
+            currentStage.setWidth(400);
+            currentStage.setHeight(300);
+            currentStage.centerOnScreen();
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -285,7 +280,6 @@ public class InboxController {
             alert.showAndWait();
         }
     }
-
 
     
 

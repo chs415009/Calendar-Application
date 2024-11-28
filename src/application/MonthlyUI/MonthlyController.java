@@ -37,6 +37,7 @@ import application.ToDoManager;
 import application.TodayUI.TodayController;
 import application.User.User;
 import application.User.UserDirectory;
+import application.User.UserDirectoryHolder;
 import application.UserUI.LoginController;
 import application.WeeklyUI.WeeklyController;
 
@@ -58,9 +59,6 @@ public class MonthlyController {
     private ObservableList<String> navigationItems;
     private UserDirectory userDirectory;
     
-    public void setUserDirectory(UserDirectory userDirectory) {
-        this.userDirectory = userDirectory;
-    }
 
     public void initialize(User user) {
     	this.currentUser = user;
@@ -339,25 +337,28 @@ public class MonthlyController {
     
     @FXML
     private void handleLogout() {
+        UserDirectory userDirectory = UserDirectoryHolder.getUserDirectory();
         if (userDirectory != null) {
             userDirectory.saveUsersToFile("src/application/users.json");
         }
 
         try {
+            // Load Login view
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/application/UserUI/Login.fxml"));
             Parent root = loader.load();
 
             LoginController loginController = loader.getController();
-            loginController.setUserDirectory(userDirectory);
+            loginController.setUserDirectory(userDirectory); // 传递 userDirectory
 
             Stage currentStage = (Stage) navigationList.getScene().getWindow();
-
-            Scene scene = new Scene(root, 400, 300); 
+            Scene scene = new Scene(root, 400, 300);
             scene.getStylesheets().add(getClass().getResource("/application/application.css").toExternalForm());
 
             currentStage.setScene(scene);
             currentStage.setTitle("Login");
-
+            currentStage.setWidth(400);
+            currentStage.setHeight(300);
+            currentStage.centerOnScreen();
         } catch (IOException e) {
             e.printStackTrace();
             Alert alert = new Alert(Alert.AlertType.ERROR);

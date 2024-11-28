@@ -12,6 +12,14 @@
           "priority": "MEDIUM",
           "tag": "ERRAND",
           "isCompleted": false
+        },
+        {
+          "title": "12",
+          "description": "12",
+          "dueDate": "2024-11-29",
+          "priority": "HIGH",
+          "tag": "ERRAND",
+          "isCompleted": false
         }
       ],
       "toDoManager": {
@@ -21,6 +29,41 @@
             "description": "Buy milk, eggs",
             "dueDate": "2024-11-25",
             "priority": "MEDIUM",
+            "tag": "ERRAND",
+            "isCompleted": false
+          },
+          {
+            "title": "12",
+            "description": "12",
+            "dueDate": "2024-11-29",
+            "priority": "HIGH",
+            "tag": "ERRAND",
+            "isCompleted": false
+          }
+        ]
+      }
+    },
+    {
+      "username": "1",
+      "password": "1",
+      "userType": "NORMAL",
+      "toDoList": [
+        {
+          "title": "1",
+          "description": "1",
+          "dueDate": "2024-11-29",
+          "priority": "HIGH",
+          "tag": "ERRAND",
+          "isCompleted": false
+        }
+      ],
+      "toDoManager": {
+        "toDoList": [
+          {
+            "title": "1",
+            "description": "1",
+            "dueDate": "2024-11-29",
+            "priority": "HIGH",
             "tag": "ERRAND",
             "isCompleted": false
           }
