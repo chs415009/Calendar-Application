@@ -36,6 +36,8 @@ import application.ToDoItem;
 import application.ToDoManager;
 import application.TodayUI.TodayController;
 import application.User.User;
+import application.User.UserDirectory;
+import application.UserUI.LoginController;
 import application.WeeklyUI.WeeklyController;
 
 public class MonthlyController {
@@ -54,6 +56,11 @@ public class MonthlyController {
     private User currentUser;
     private YearMonth currentYearMonth;
     private ObservableList<String> navigationItems;
+    private UserDirectory userDirectory;
+    
+    public void setUserDirectory(UserDirectory userDirectory) {
+        this.userDirectory = userDirectory;
+    }
 
     public void initialize(User user) {
     	this.currentUser = user;
@@ -332,8 +339,36 @@ public class MonthlyController {
     
     @FXML
     private void handleLogout() {
-        //Feiyu:.....
+        if (userDirectory != null) {
+            userDirectory.saveUsersToFile("src/application/users.json");
+        }
+
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/application/UserUI/Login.fxml"));
+            Parent root = loader.load();
+
+            LoginController loginController = loader.getController();
+            loginController.setUserDirectory(userDirectory);
+
+            Stage currentStage = (Stage) navigationList.getScene().getWindow();
+
+            Scene scene = new Scene(root, 400, 300); 
+            scene.getStylesheets().add(getClass().getResource("/application/application.css").toExternalForm());
+
+            currentStage.setScene(scene);
+            currentStage.setTitle("Login");
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Logout Error");
+            alert.setHeaderText(null);
+            alert.setContentText("Could not load the login view. Error: " + e.getMessage());
+            alert.showAndWait();
+        }
     }
+
+
 
     private void showAddTaskDialog(ToDoItem task) {
         Dialog<ToDoItem> dialog = new Dialog<>();

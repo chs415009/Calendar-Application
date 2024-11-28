@@ -27,22 +27,20 @@ public class UserDirectory {
     }
 
     public boolean addNormalUser(NormalUser user) {
-        // 检查普通用户和 VIP 用户列表中是否存在相同的用户名
         if (getNormalUserByUsername(user.getUsername()) != null || getVIPUserByUsername(user.getUsername()) != null) {
-            return false; // 用户名已存在
+            return false; 
         } else {
             normalUsers.add(user);
-            return true; // 成功添加用户
+            return true; 
         }
     }
 
     public boolean addVIPUser(VIPUser user) {
-        // 检查普通用户和 VIP 用户列表中是否存在相同的用户名
         if (getNormalUserByUsername(user.getUsername()) != null || getVIPUserByUsername(user.getUsername()) != null) {
-            return false; // 用户名已存在
+            return false; 
         } else {
             vipUsers.add(user);
-            return true; // 成功添加用户
+            return true; 
         }
     }
 
@@ -89,6 +87,7 @@ public class UserDirectory {
         return new ArrayList<>(vipUsers);
     }
 
+
     public static UserDirectory loadUsersFromFile(String fileName) {
         try (FileReader reader = new FileReader(fileName)) {
             Gson gson = new GsonBuilder()
@@ -96,7 +95,6 @@ public class UserDirectory {
                     .create();
             UserDirectory userDirectory = gson.fromJson(reader, UserDirectory.class);
 
-            // 确保每个用户的 ToDoManager 被正确初始化
             if (userDirectory != null) {
                 for (NormalUser user : userDirectory.getNormalUsers()) {
                     user.setToDoManager(new ToDoManager(user));
@@ -110,53 +108,19 @@ public class UserDirectory {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return new UserDirectory(); // Return an empty directory if loading fails
+        return new UserDirectory();
     }
 
 
     public void saveUsersToFile(String fileName) {
         Gson gson = new GsonBuilder()
                 .registerTypeAdapter(LocalDate.class, new LocalDateAdapter())
-                .setPrettyPrinting() // 添加这个来格式化输出
+                .setPrettyPrinting()
                 .create();
 
-        try {
-            // Step 1: 读取现有的 JSON 文件内容
-            FileReader reader = new FileReader(fileName);
-            JsonElement existingData = JsonParser.parseReader(reader);
-            reader.close();
-
-            // Step 2: 将读取的内容解析为 UserDirectory 对象
-            UserDirectory existingUserDirectory = null;
-            if (existingData.isJsonObject()) {
-                existingUserDirectory = gson.fromJson(existingData, UserDirectory.class);
-            }
-
-            // Step 3: 合并现有用户与新用户
-            if (existingUserDirectory != null) {
-                // 合并普通用户，避免重复添加相同的用户
-                for (NormalUser user : existingUserDirectory.getNormalUsers()) {
-                    if (getNormalUserByUsername(user.getUsername()) == null &&
-                            getVIPUserByUsername(user.getUsername()) == null) {
-                        this.normalUsers.add(user);
-                    }
-                }
-
-                // 合并 VIP 用户，避免重复添加相同的用户
-                for (VIPUser user : existingUserDirectory.getVipUsers()) {
-                    if (getNormalUserByUsername(user.getUsername()) == null &&
-                            getVIPUserByUsername(user.getUsername()) == null) {
-                        this.vipUsers.add(user);
-                    }
-                }
-            }
-
-            // Step 4: 写入合并后的数据到文件中
-            FileWriter writer = new FileWriter(fileName);
-            gson.toJson(this, writer); // 使用 Pretty Printing 格式化输出
+        try (FileWriter writer = new FileWriter(fileName)) {
+            gson.toJson(this, writer);
             writer.flush();
-            writer.close();
-
         } catch (IOException e) {
             e.printStackTrace();
         }

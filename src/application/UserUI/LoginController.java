@@ -16,10 +16,8 @@ import javafx.stage.Stage;
 
 public class LoginController {
 
-    // 添加 userDirectory 作为成员变量
     private UserDirectory userDirectory;
 
-    // Setter 方法，用于将 userDirectory 设置为 Main 类中的 UserDirectory 实例
     public void setUserDirectory(UserDirectory userDirectory) {
         this.userDirectory = userDirectory;
     }
@@ -91,6 +89,7 @@ public class LoginController {
             e.printStackTrace();
         }
     }
+
 
     private void loadMainPage(User user) {
         try {

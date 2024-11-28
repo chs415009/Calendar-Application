@@ -15,6 +15,12 @@ import javafx.scene.control.TextField;
 
 public class RegisterController {
 
+    private UserDirectory userDirectory;
+
+    public void setUserDirectory(UserDirectory userDirectory) {
+        this.userDirectory = userDirectory;
+    }
+
     @FXML
     private TextField usernameField;
 
@@ -30,19 +36,12 @@ public class RegisterController {
     @FXML
     private Button backButton;
 
-    private UserDirectory userDirectory;
-
-    public void setUserDirectory(UserDirectory userDirectory) {
-        this.userDirectory = userDirectory;
-    }
-
     @FXML
     public void handleNormalRegister() {
         String username = usernameField.getText();
         String password = passwordField.getText();
 
         if (validateInput(username, password)) {
-            // Add NormalUser to normalUsers list
             NormalUser normalUser = new NormalUser(username, password);
             if (userDirectory.addNormalUser(normalUser)) {
                 showAlert(Alert.AlertType.INFORMATION, "Registration Successful", "Normal User registered successfully!");
@@ -59,7 +58,6 @@ public class RegisterController {
         String password = passwordField.getText();
 
         if (validateInput(username, password)) {
-            // Add VIPUser to vipUsers list
             VIPUser vipUser = new VIPUser(username, password);
             if (userDirectory.addVIPUser(vipUser)) {
                 showAlert(Alert.AlertType.INFORMATION, "Registration Successful", "VIP User registered successfully!");
@@ -67,27 +65,6 @@ public class RegisterController {
             } else {
                 showAlert(Alert.AlertType.ERROR, "Registration Failed", "Username already exists.");
             }
-        }
-    }
-
-    @FXML
-    public void handleBackToLogin() {
-        try {
-            // Load Login.fxml
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/application/UserUI/Login.fxml"));
-            Parent root = loader.load();
-
-            // Show the Login window
-            Stage stage = new Stage();
-            stage.setTitle("Login");
-            stage.setScene(new Scene(root, 400, 300));
-            stage.show();
-
-            // Close the current Register window
-            Stage currentStage = (Stage) backButton.getScene().getWindow();
-            currentStage.close();
-        } catch (Exception e) {
-            e.printStackTrace();
         }
     }
 

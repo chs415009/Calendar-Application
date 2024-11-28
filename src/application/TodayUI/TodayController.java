@@ -23,6 +23,9 @@ import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 import java.util.Optional;
 
+import application.User.UserDirectory;
+import application.UserUI.LoginController;
+
 public class TodayController {
 
     @FXML
@@ -43,7 +46,11 @@ public class TodayController {
     private ObservableList<String> navigationItems;
     private ToDoManager toDoManager;
     private User currentUser;
+    private UserDirectory userDirectory;
     
+    public void setUserDirectory(UserDirectory userDirectory) {
+        this.userDirectory = userDirectory;
+    }
 
     public void initialize(User user) {
     	this.currentUser = user;
@@ -202,8 +209,36 @@ public class TodayController {
     
     @FXML
     private void handleLogout() {
-        //Feiyu:.....
+        if (userDirectory != null) {
+            userDirectory.saveUsersToFile("src/application/users.json");
+        }
+
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/application/UserUI/Login.fxml"));
+            Parent root = loader.load();
+
+            LoginController loginController = loader.getController();
+            loginController.setUserDirectory(userDirectory);
+
+            Stage currentStage = (Stage) taskListView.getScene().getWindow();
+
+            Scene scene = new Scene(root, 400, 300); 
+            scene.getStylesheets().add(getClass().getResource("/application/application.css").toExternalForm());
+
+            currentStage.setScene(scene);
+            currentStage.setTitle("Login");
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Logout Error");
+            alert.setHeaderText(null);
+            alert.setContentText("Could not load the login view. Error: " + e.getMessage());
+            alert.showAndWait();
+        }
     }
+
+
     
 
     private void showAddTaskDialog(ToDoItem task) {

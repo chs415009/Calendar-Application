@@ -15,7 +15,7 @@ public class Main extends Application {
     @Override
     public void start(Stage primaryStage) {
         try {
-            UserDirectory userDirectory = UserDirectory.loadUsersFromFile("src/application/users.json");
+            userDirectory = UserDirectory.loadUsersFromFile(FILE_NAME);
 
             // Load Login.fxml
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/application/UserUI/Login.fxml"));
@@ -34,7 +34,6 @@ public class Main extends Application {
     }
 
     public static void main(String[] args) {
-        // 添加 JVM 关闭时保存数据的钩子
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             if (userDirectory != null) {
                 userDirectory.saveUsersToFile(FILE_NAME);
@@ -44,5 +43,3 @@ public class Main extends Application {
         launch(args);
     }
 }
-
-
