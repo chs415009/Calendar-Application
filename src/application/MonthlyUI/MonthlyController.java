@@ -18,6 +18,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
+import javafx.scene.control.TextFormatter;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
@@ -29,6 +30,7 @@ import java.io.IOException;
 
 import java.time.LocalDate;
 import java.time.YearMonth;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 
@@ -39,6 +41,7 @@ import application.User.User;
 import application.User.UserDirectory;
 import application.User.UserDirectoryHolder;
 import application.UserUI.LoginController;
+import application.User.UserType;
 import application.WeeklyUI.WeeklyController;
 
 public class MonthlyController {
@@ -286,33 +289,31 @@ public class MonthlyController {
     
     @FXML
     private void handleAddTask() {
-        showAddTaskDialog(null);
+        if(currentUser.getUserType() == UserType.VIP) {
+        	VIPAddTaskDialog(null);
+        	return;
+        }   	   	
+    	showAddTaskDialog(null); // Show the dialog to add a task
     }
     
     @FXML
     private void handleDeleteTask() {
-        // Find the selected task from any of the day lists
-        ToDoItem selectedTask = null;
-        
+
+        ToDoItem selectedTask = null;       
         LocalDate firstDayOfMonth = currentYearMonth.atDay(1);
         LocalDate lastDayOfMonth = currentYearMonth.atEndOfMonth();
-
-        // 計算當月的總天數
+        
         int daysInMonth = lastDayOfMonth.getDayOfMonth();
-
-        // 計算當月的第一天是星期幾
         int dayOfWeek = firstDayOfMonth.getDayOfWeek().getValue() % 7;
-
         int row = 1, column = dayOfWeek;
         
         for (int day = 1; day <= daysInMonth; day++) {
-            LocalDate date = firstDayOfMonth.withDayOfMonth(day);  // 計算當前的日期
+            //LocalDate date = firstDayOfMonth.withDayOfMonth(day);  
             
-            // 找到對應日期的 ListView 元素
-            VBox dayBox = (VBox) getNodeFromGrid(calendarGrid, column, row);  // 獲取當前格子的 VBox
+            VBox dayBox = (VBox) getNodeFromGrid(calendarGrid, column, row);  
             if (dayBox != null) {
                 @SuppressWarnings("unchecked")
-				ListView<ToDoItem> dayList = (ListView<ToDoItem>) dayBox.getChildren().get(1);  // 假設 ListView 是在 VBox 中的第二個元素
+				ListView<ToDoItem> dayList = (ListView<ToDoItem>) dayBox.getChildren().get(1);  
                 
                 if (dayList.getSelectionModel().getSelectedItem() != null) {
                     selectedTask = dayList.getSelectionModel().getSelectedItem();
@@ -320,7 +321,6 @@ public class MonthlyController {
                 }
             }
 
-            // 更新列與行
             column++;
             if (column > 6) {
                 column = 0;
@@ -328,11 +328,44 @@ public class MonthlyController {
             }
         }
         
-        if (selectedTask != null) {
-            toDoManager.deleteTask(selectedTask);
-            populateMonthlyTasks();
-            taskDetails.setText("Select a task to view its details");
+        if (selectedTask == null) {
+        	// Show an alert if no task is selected
+            Alert alert = new Alert(Alert.AlertType.WARNING);
+            alert.setTitle("No Task Selected");
+            alert.setHeaderText(null);
+            alert.setContentText("Please select a task to delete.");
+            alert.showAndWait();
+            return;
         }
+        
+        if(currentUser.getUserType() == UserType.VIP) {
+        	Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        	alert.setTitle("Delete Task");
+        	alert.setHeaderText(null);
+        	alert.setContentText("Do you want to delete all tasks with the same name?");
+
+        	ButtonType buttonYes = new ButtonType("Yes", ButtonBar.ButtonData.YES);
+        	ButtonType buttonNo = new ButtonType("No", ButtonBar.ButtonData.NO);
+        	alert.getButtonTypes().setAll(buttonYes, buttonNo);
+
+        	Optional<ButtonType> result = alert.showAndWait();
+
+        	if (result.isPresent() && result.get() == buttonYes) {        	    
+        	    Iterator<ToDoItem> iterator = currentUser.getToDoList().iterator();
+        	    while(iterator.hasNext()) {
+        	    	ToDoItem todo = iterator.next();
+        	    	if(todo.getTitle().equals(selectedTask.getTitle()) && todo.getTag().equals(selectedTask.getTag())) {
+        	    		iterator.remove();
+        	    	}
+        	    }
+        	}
+        	else {
+        		toDoManager.deleteTask(selectedTask);
+        	}
+        }
+
+        populateMonthlyTasks();
+        taskDetails.setText("Select a task to view its details");
     }
     
     @FXML
@@ -458,6 +491,140 @@ public class MonthlyController {
             }
             populateMonthlyTasks();
         });
+    }
+    
+    private void VIPAddTaskDialog(ToDoItem task) {
+        Dialog<ToDoItem> dialog = new Dialog<>();
+        dialog.setTitle("Add Task");
+
+        GridPane grid = new GridPane();
+        grid.setHgap(10);
+        grid.setVgap(10);
+        grid.setPadding(new Insets(20, 150, 10, 10));
+
+        TextField titleField = new TextField();
+        titleField.setPromptText("Title");
+        TextField descriptionField = new TextField();
+        descriptionField.setPromptText("Description");
+        DatePicker dueDatePicker = new DatePicker();
+        dueDatePicker.setEditable(false); // Disable manual typing
+        ComboBox<ToDoItem.Priority> priorityComboBox = new ComboBox<>(FXCollections.observableArrayList(ToDoItem.Priority.values()));
+        ComboBox<ToDoItem.Tag> tagComboBox = new ComboBox<>(FXCollections.observableArrayList(ToDoItem.Tag.values()));
+        Label infoLabel = new Label( "If only creating one task, ignore below.");
+        infoLabel.setStyle("-fx-font-weight: bold;");
+        ComboBox<String> frequencyComboBox = new ComboBox<>(FXCollections.observableArrayList("Daily", "Weekly", "Monthly"));
+        frequencyComboBox.setPromptText("Frequency");
+        frequencyComboBox.setValue(""); // 預設為空白
+        TextField quantityField = new TextField();
+        quantityField.setPromptText("Quantity");
+        quantityField.setTextFormatter(new TextFormatter<>(change -> 
+            (change.getControlNewText().matches("\\d*")) ? change : null)); 
+
+        grid.add(new Label("Title:"), 0, 0);
+        grid.add(titleField, 1, 0);
+        grid.add(new Label("Description:"), 0, 1);
+        grid.add(descriptionField, 1, 1);
+        grid.add(new Label("Due Date:"), 0, 2);
+        grid.add(dueDatePicker, 1, 2);
+        grid.add(new Label("Priority:"), 0, 3);
+        grid.add(priorityComboBox, 1, 3);
+        grid.add(new Label("Tag:"), 0, 4);
+        grid.add(tagComboBox, 1, 4);
+        grid.add(new Label(), 0, 5); 
+        grid.add(infoLabel, 0, 6, 2, 1); 
+        grid.add(new Label("Frequency:"), 0, 7);
+        grid.add(frequencyComboBox, 1, 7);
+        grid.add(new Label("Quantity:"), 0, 8);
+        grid.add(quantityField, 1, 8);
+
+        dialog.getDialogPane().setContent(grid);
+
+        ButtonType saveButtonType = new ButtonType("Save", ButtonBar.ButtonData.OK_DONE);
+        dialog.getDialogPane().getButtonTypes().addAll(saveButtonType, ButtonType.CANCEL);
+
+        dialog.setResultConverter(dialogButton -> {
+            if (dialogButton == saveButtonType) {
+                
+                if (titleField.getText().isEmpty() ||
+                    descriptionField.getText().isEmpty() ||
+                    dueDatePicker.getValue() == null ||
+                    priorityComboBox.getValue() == null ||
+                    tagComboBox.getValue() == null) {
+
+                    Alert alert = new Alert(Alert.AlertType.ERROR);
+                    alert.setTitle("Invalid Input");
+                    alert.setHeaderText(null);
+                    alert.setContentText("Please fill in all required fields.");
+                    alert.showAndWait();
+
+                    VIPAddTaskDialog(task); // Reopen dialog
+                    return null;
+                }
+
+                
+                if ((frequencyComboBox.getValue().isEmpty() && !quantityField.getText().isEmpty()) || 
+                    (!frequencyComboBox.getValue().isEmpty() && quantityField.getText().isEmpty())) {
+                    Alert alert = new Alert(Alert.AlertType.ERROR);
+                    alert.setTitle("Invalid Input");
+                    alert.setHeaderText(null);
+                    alert.setContentText("If you select a frequency, you must also specify a quantity.");
+                    alert.showAndWait();
+                    
+                    VIPAddTaskDialog(task); // Reopen dialog
+                    return null;
+                }
+
+                if (!frequencyComboBox.getValue().isEmpty() && !quantityField.getText().isEmpty()) {
+                    int quantity = Integer.parseInt(quantityField.getText());
+                    String frequency = frequencyComboBox.getValue();
+                    LocalDate startDate = dueDatePicker.getValue();
+
+                    for (int i = 0; i < quantity; i++) {
+                        LocalDate newDueDate = calculateNextDueDate(startDate, frequency, i);
+                        ToDoItem newTask = new ToDoItem(
+                            titleField.getText(),
+                            descriptionField.getText(),
+                            newDueDate,
+                            priorityComboBox.getValue(),
+                            tagComboBox.getValue()
+                        );
+                        toDoManager.addTask(newTask); 
+                    }
+                    return null;
+                }
+
+                return new ToDoItem(
+                    titleField.getText(),
+                    descriptionField.getText(),
+                    dueDatePicker.getValue(),
+                    priorityComboBox.getValue(),
+                    tagComboBox.getValue()
+                );
+            }
+            return null;
+        });
+
+        Optional<ToDoItem> result = dialog.showAndWait();
+        result.ifPresent(newTask -> {
+            if (task == null) {
+                toDoManager.addTask(newTask);
+            }
+        });
+        populateMonthlyTasks();
+    }
+    
+    //Used for VIPAddTaskDialog
+    private LocalDate calculateNextDueDate(LocalDate startDate, String frequency, int index) {
+        switch (frequency.toLowerCase()) {
+            case "daily":
+                return startDate.plusDays(index);
+            case "weekly":
+                return startDate.plusWeeks(index);
+            case "monthly":
+                return startDate.plusMonths(index);
+            default:
+                throw new IllegalArgumentException("Invalid frequency: " + frequency);
+        }
     }
     
     @FXML
