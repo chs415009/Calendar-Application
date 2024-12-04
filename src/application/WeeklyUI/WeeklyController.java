@@ -310,7 +310,6 @@ public class WeeklyController {
     
     @FXML
     private void handleDeleteTask() {
-        // Find the selected task from any of the day lists
         ToDoItem selectedTask = null;
         for (int i = 0; i < 7; i++) {
             @SuppressWarnings("unchecked")
@@ -322,7 +321,6 @@ public class WeeklyController {
         }
         
         if (selectedTask == null) {
-        	// Show an alert if no task is selected
             Alert alert = new Alert(Alert.AlertType.WARNING);
             alert.setTitle("No Task Selected");
             alert.setHeaderText(null);
@@ -330,36 +328,41 @@ public class WeeklyController {
             alert.showAndWait();
             return;
         }
-        
-        if(currentUser.getUserType() == UserType.VIP) {
-        	Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-        	alert.setTitle("Delete Task");
-        	alert.setHeaderText(null);
-        	alert.setContentText("Do you want to delete all tasks with the same name?");
 
-        	ButtonType buttonYes = new ButtonType("Yes", ButtonBar.ButtonData.YES);
-        	ButtonType buttonNo = new ButtonType("No", ButtonBar.ButtonData.NO);
-        	alert.getButtonTypes().setAll(buttonYes, buttonNo);
+        if (currentUser.getUserType() == UserType.VIP) {
+            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+            alert.setTitle("Delete Task");
+            alert.setHeaderText(null);
+            alert.setContentText("Do you want to delete all tasks with the same name?");
 
-        	Optional<ButtonType> result = alert.showAndWait();
+            ButtonType buttonYes = new ButtonType("Yes", ButtonBar.ButtonData.YES);
+            ButtonType buttonNo = new ButtonType("No", ButtonBar.ButtonData.NO);
+            alert.getButtonTypes().setAll(buttonYes, buttonNo);
 
-        	if (result.isPresent() && result.get() == buttonYes) {        	    
-        	    Iterator<ToDoItem> iterator = currentUser.getToDoList().iterator();
-        	    while(iterator.hasNext()) {
-        	    	ToDoItem todo = iterator.next();
-        	    	if(todo.getTitle().equals(selectedTask.getTitle()) && todo.getTag().equals(selectedTask.getTag())) {
-        	    		iterator.remove();
-        	    	}
-        	    }
-        	}
-        	else {
-        		toDoManager.deleteTask(selectedTask);
-        	}
+            Optional<ButtonType> result = alert.showAndWait();
+
+            if (result.isPresent() && result.get() == buttonYes) {
+                Iterator<ToDoItem> iterator = currentUser.getToDoList().iterator();
+                while (iterator.hasNext()) {
+                    ToDoItem todo = iterator.next();
+                    if (todo.getTitle().equals(selectedTask.getTitle()) && todo.getTag().equals(selectedTask.getTag())) {
+                        iterator.remove();
+                        toDoManager.deleteTask(todo); 
+                    }
+                }
+            } else {
+                currentUser.getToDoList().remove(selectedTask);
+                toDoManager.deleteTask(selectedTask); 
+            }
+        } else {
+            currentUser.getToDoList().remove(selectedTask);
+            toDoManager.deleteTask(selectedTask); 
         }
-         
+
         populateWeeklyTasks();
         taskDetails.setText("Select a task to view its details");
     }
+
     
     @FXML
     private void handleLogout() {

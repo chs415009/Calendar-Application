@@ -7,16 +7,16 @@
       "toDoList": [
         {
           "title": "Buy groceries",
-          "description": "Buy milk, eggs",
+          "description": "Buy milk",
           "dueDate": "2024-11-25",
           "priority": "MEDIUM",
           "tag": "ERRAND",
           "isCompleted": false
         },
         {
-          "title": "12",
-          "description": "12",
-          "dueDate": "2024-11-29",
+          "title": "123",
+          "description": "123",
+          "dueDate": "2024-12-04",
           "priority": "HIGH",
           "tag": "ERRAND",
           "isCompleted": false
@@ -26,16 +26,16 @@
         "toDoList": [
           {
             "title": "Buy groceries",
-            "description": "Buy milk, eggs",
+            "description": "Buy milk",
             "dueDate": "2024-11-25",
             "priority": "MEDIUM",
             "tag": "ERRAND",
             "isCompleted": false
           },
           {
-            "title": "12",
-            "description": "12",
-            "dueDate": "2024-11-29",
+            "title": "123",
+            "description": "123",
+            "dueDate": "2024-12-04",
             "priority": "HIGH",
             "tag": "ERRAND",
             "isCompleted": false
@@ -71,5 +71,15 @@
       }
     }
   ],
-  "vipUsers": []
+  "vipUsers": [
+    {
+      "username": "12",
+      "password": "12",
+      "userType": "VIP",
+      "toDoList": [],
+      "toDoManager": {
+        "toDoList": []
+      }
+    }
+  ]
 }

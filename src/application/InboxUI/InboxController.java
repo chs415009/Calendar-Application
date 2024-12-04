@@ -249,7 +249,7 @@ public class InboxController {
         ToDoItem selectedTask = taskListView.getSelectionModel().getSelectedItem();
         
         if (selectedTask == null) {
-        	// Show an alert if no task is selected
+            // Show an alert if no task is selected
             Alert alert = new Alert(Alert.AlertType.WARNING);
             alert.setTitle("No Task Selected");
             alert.setHeaderText(null);
@@ -258,42 +258,51 @@ public class InboxController {
             return;
         }
 
-
+        // If userDirectory is available, save the users data to file
         if (userDirectory != null) {
             userDirectory.saveUsersToFile("users.json");
         }
 
-        
-        if(currentUser.getUserType() == UserType.VIP) {
-        	Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-        	alert.setTitle("Delete Task");
-        	alert.setHeaderText(null);
-        	alert.setContentText("Do you want to delete all tasks with the same name?");
+        // Check user type
+        if (currentUser.getUserType() == UserType.VIP) {
+            // Prompt user to decide whether to delete all tasks with the same name
+            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+            alert.setTitle("Delete Task");
+            alert.setHeaderText(null);
+            alert.setContentText("Do you want to delete all tasks with the same name?");
 
-        	ButtonType buttonYes = new ButtonType("Yes", ButtonBar.ButtonData.YES);
-        	ButtonType buttonNo = new ButtonType("No", ButtonBar.ButtonData.NO);
-        	alert.getButtonTypes().setAll(buttonYes, buttonNo);
+            ButtonType buttonYes = new ButtonType("Yes", ButtonBar.ButtonData.YES);
+            ButtonType buttonNo = new ButtonType("No", ButtonBar.ButtonData.NO);
+            alert.getButtonTypes().setAll(buttonYes, buttonNo);
 
-        	Optional<ButtonType> result = alert.showAndWait();
+            Optional<ButtonType> result = alert.showAndWait();
 
-        	if (result.isPresent() && result.get() == buttonYes) {        	    
-        	    Iterator<ToDoItem> iterator = currentUser.getToDoList().iterator();
-        	    while(iterator.hasNext()) {
-        	    	ToDoItem todo = iterator.next();
-        	    	if(todo.getTitle().equals(selectedTask.getTitle()) && todo.getTag().equals(selectedTask.getTag())) {
-        	    		iterator.remove();
-        	    	}
-        	    }
-        	}
-        	else {
-        		toDoManager.deleteTask(selectedTask);
-        	}
+            if (result.isPresent() && result.get() == buttonYes) {
+                // Delete all tasks with the same name and tag
+                Iterator<ToDoItem> iterator = currentUser.getToDoList().iterator();
+                while (iterator.hasNext()) {
+                    ToDoItem todo = iterator.next();
+                    if (todo.getTitle().equals(selectedTask.getTitle()) && todo.getTag().equals(selectedTask.getTag())) {
+                        iterator.remove();
+                        toDoManager.deleteTask(todo); // Make sure to also delete from toDoManager
+                    }
+                }
+            } else {
+                // Delete only the selected task
+                currentUser.getToDoList().remove(selectedTask);
+                toDoManager.deleteTask(selectedTask); // Delete from toDoManager
+            }
+        } else {
+            // For non-VIP users, delete the selected task directly
+            currentUser.getToDoList().remove(selectedTask);
+            toDoManager.deleteTask(selectedTask); // Delete from toDoManager
         }
-         
+
+        // Update the task list view
         updateTasks(navigationList.getSelectionModel().getSelectedItem());
         taskDetails.setText("Select a task to view its details");
-
     }
+
     
     @FXML
     private void handleLogout() {

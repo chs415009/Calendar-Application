@@ -201,7 +201,6 @@ public class TodayController {
         ToDoItem selectedTask = taskListView.getSelectionModel().getSelectedItem();
         
         if (selectedTask == null) {
-        	// Show an alert if no task is selected
             Alert alert = new Alert(Alert.AlertType.WARNING);
             alert.setTitle("No Task Selected");
             alert.setHeaderText(null);
@@ -209,54 +208,54 @@ public class TodayController {
             alert.showAndWait();
             return;
         }
-        
-        if(currentUser.getUserType() == UserType.VIP) {
-        	Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-        	alert.setTitle("Delete Task");
-        	alert.setHeaderText(null);
-        	alert.setContentText("Do you want to delete all tasks with the same name?");
 
-        	ButtonType buttonYes = new ButtonType("Yes", ButtonBar.ButtonData.YES);
-        	ButtonType buttonNo = new ButtonType("No", ButtonBar.ButtonData.NO);
-        	alert.getButtonTypes().setAll(buttonYes, buttonNo);
+        if (currentUser.getUserType() == UserType.VIP) {
+            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+            alert.setTitle("Delete Task");
+            alert.setHeaderText(null);
+            alert.setContentText("Do you want to delete all tasks with the same name?");
 
-        	Optional<ButtonType> result = alert.showAndWait();
+            ButtonType buttonYes = new ButtonType("Yes", ButtonBar.ButtonData.YES);
+            ButtonType buttonNo = new ButtonType("No", ButtonBar.ButtonData.NO);
+            alert.getButtonTypes().setAll(buttonYes, buttonNo);
 
-        	if (result.isPresent() && result.get() == buttonYes) {        	    
-        	    Iterator<ToDoItem> iterator = currentUser.getToDoList().iterator();
-        	    while(iterator.hasNext()) {
-        	    	ToDoItem todo = iterator.next();
-        	    	if(todo.getTitle().equals(selectedTask.getTitle()) && todo.getTag().equals(selectedTask.getTag())) {
-        	    		iterator.remove();
-        	    	}
-        	    }
-        	}
-        	else {
-        		toDoManager.deleteTask(selectedTask);
-        	}
+            Optional<ButtonType> result = alert.showAndWait();
+
+            if (result.isPresent() && result.get() == buttonYes) {              
+                Iterator<ToDoItem> iterator = currentUser.getToDoList().iterator();
+                while (iterator.hasNext()) {
+                    ToDoItem todo = iterator.next();
+                    if (todo.getTitle().equals(selectedTask.getTitle()) && todo.getTag().equals(selectedTask.getTag())) {
+                        iterator.remove();
+                        toDoManager.deleteTask(todo); 
+                    }
+                }
+            } else {
+                currentUser.getToDoList().remove(selectedTask);
+                toDoManager.deleteTask(selectedTask); 
+            }
+        } else {
+            currentUser.getToDoList().remove(selectedTask);
+            toDoManager.deleteTask(selectedTask); 
         }
-         
         updateTasks(navigationList.getSelectionModel().getSelectedItem());
         taskDetails.setText("Select a task to view its details");
     }
+
     
     @FXML
     private void handleLogout() {
-        // 保存用户数据到文件
         if (userDirectory != null) {
             userDirectory.saveUsersToFile("src/application/users.json");
         }
 
         try {
-            // 加载登录页面
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/application/UserUI/Login.fxml"));
             Parent root = loader.load();
-
-            // 设置登录页面控制器中的 userDirectory
+            
             LoginController loginController = loader.getController();
             loginController.setUserDirectory(UserDirectoryHolder.getUserDirectory());
 
-            // 显示登录窗口
             Stage currentStage = (Stage) taskListView.getScene().getWindow();
             Scene scene = new Scene(root, 400, 300);
             scene.getStylesheets().add(getClass().getResource("/application/application.css").toExternalForm());
@@ -380,7 +379,7 @@ public class TodayController {
         infoLabel.setStyle("-fx-font-weight: bold;");
         ComboBox<String> frequencyComboBox = new ComboBox<>(FXCollections.observableArrayList("Daily", "Weekly", "Monthly"));
         frequencyComboBox.setPromptText("Frequency");
-        frequencyComboBox.setValue(""); // 預設為空白
+        frequencyComboBox.setValue(""); 
         TextField quantityField = new TextField();
         quantityField.setPromptText("Quantity");
         quantityField.setTextFormatter(new TextFormatter<>(change -> 
