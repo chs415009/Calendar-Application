@@ -2,6 +2,7 @@ package application.UserUI;
 
 import application.User.NormalUser;
 import application.User.UserDirectory;
+import application.User.UserDirectoryHolder;
 import application.User.VIPUser;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -14,6 +15,12 @@ import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 
 public class RegisterController {
+
+    private UserDirectory userDirectory;
+
+    public void setUserDirectory(UserDirectory userDirectory) {
+        this.userDirectory = userDirectory;
+    }
 
     @FXML
     private TextField usernameField;
@@ -30,20 +37,13 @@ public class RegisterController {
     @FXML
     private Button backButton;
 
-    private static UserDirectory userDirectory = new UserDirectory(); // UserDirectory instance
-
-    // Getter method to access userDirectory
-    public static UserDirectory getUserDirectory() {
-        return userDirectory;
-    }
-
+    
     @FXML
     public void handleNormalRegister() {
         String username = usernameField.getText();
         String password = passwordField.getText();
 
         if (validateInput(username, password)) {
-            // Add NormalUser to normalUsers list
             NormalUser normalUser = new NormalUser(username, password);
             if (userDirectory.addNormalUser(normalUser)) {
                 showAlert(Alert.AlertType.INFORMATION, "Registration Successful", "Normal User registered successfully!");
@@ -52,6 +52,7 @@ public class RegisterController {
                 showAlert(Alert.AlertType.ERROR, "Registration Failed", "Username already exists.");
             }
         }
+        UserDirectoryHolder.setUserDirectory(userDirectory);
     }
 
     @FXML
@@ -60,7 +61,6 @@ public class RegisterController {
         String password = passwordField.getText();
 
         if (validateInput(username, password)) {
-            // Add VIPUser to vipUsers list
             VIPUser vipUser = new VIPUser(username, password);
             if (userDirectory.addVIPUser(vipUser)) {
                 showAlert(Alert.AlertType.INFORMATION, "Registration Successful", "VIP User registered successfully!");
@@ -70,27 +70,39 @@ public class RegisterController {
             }
         }
     }
-
-    @FXML
+    
     public void handleBackToLogin() {
         try {
-            // Load Login.fxml
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/application/UserUI/Login.fxml"));
             Parent root = loader.load();
 
-            // Show the Login window
-            Stage stage = new Stage();
-            stage.setTitle("Login");
-            stage.setScene(new Scene(root, 400, 300));
-            stage.show();
+            // 获取 LoginController
+            LoginController loginController = loader.getController();
 
-            // Close the current Register window
+            // 通过 UserDirectoryHolder 获取全局的 userDirectory 实例
+            loginController.setUserDirectory(UserDirectoryHolder.getUserDirectory());
+
+            // 获取当前窗口并加载登录页面
             Stage currentStage = (Stage) backButton.getScene().getWindow();
-            currentStage.close();
+            Scene scene = new Scene(root, 400, 300);
+            scene.getStylesheets().add(getClass().getResource("/application/application.css").toExternalForm());
+
+            currentStage.setScene(scene);
+            currentStage.setTitle("Login");
+            currentStage.centerOnScreen();
+            currentStage.show();
+
         } catch (Exception e) {
             e.printStackTrace();
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Navigation Error");
+            alert.setHeaderText(null);
+            alert.setContentText("Could not load the login view. Error: " + e.getMessage());
+            alert.showAndWait();
         }
     }
+
+
 
     private boolean validateInput(String username, String password) {
         if (username == null || username.isEmpty() || password == null || password.isEmpty()) {

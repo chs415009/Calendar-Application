@@ -1,9 +1,9 @@
 package application.UserUI;
 
 import application.InboxUI.InboxController;
-import application.TodayUI.TodayController;
 import application.User.User;
 import application.User.UserDirectory;
+import application.User.UserDirectoryHolder;
 import application.User.UserType;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -16,6 +16,8 @@ import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 
 public class LoginController {
+	
+	private UserDirectory userDirectory;
 
     @FXML
     private TextField usernameField;
@@ -28,28 +30,42 @@ public class LoginController {
 
     @FXML
     private Button registerButton;
+    
+    public void setUserDirectory(UserDirectory userDirectory) {
+        // 通过 UserDirectoryHolder 来设置 userDirectory
+        UserDirectoryHolder.setUserDirectory(userDirectory);
+        this.userDirectory = userDirectory;
+    }
 
     @FXML
     public void handleLogin() {
+        UserDirectory userDirectory = UserDirectoryHolder.getUserDirectory();
+        
+        if (userDirectory == null) {
+            System.out.println("userDirectory is null in handleLogin");
+            showAlert(Alert.AlertType.ERROR, "Error", "User directory is not initialized.");
+            return;
+        }
+
         String username = usernameField.getText();
         String password = passwordField.getText();
 
-        // Access userDirectory via the getter
-        UserDirectory userDirectory = RegisterController.getUserDirectory();
-
         User user = userDirectory.login(username, password);
         if (user != null) {
-            // 用戶登入成功
+            // 用户登录成功
             if (user.getUserType().equals(UserType.VIP)) {
                 showAlert(Alert.AlertType.INFORMATION, "Login Successful", "Welcome, VIP " + user.getUsername() + "!");
             } else if (user.getUserType().equals(UserType.NORMAL)) {
                 showAlert(Alert.AlertType.INFORMATION, "Login Successful", "Welcome, " + user.getUsername() + "!");
             }
 
-            // 加載主頁面
+            // 保存到 UserDirectoryHolder
+            UserDirectoryHolder.setUserDirectory(userDirectory);
+
+            // 加载主页面
             loadMainPage(user);
         } else {
-            // 用戶登入失敗
+            // 用户登录失败
             showAlert(Alert.AlertType.ERROR, "Login Failed", "Invalid username or password.");
         }
     }
@@ -57,20 +73,24 @@ public class LoginController {
     @FXML
     public void handleRegisterRedirect() {
         try {
-            // Load Register.fxml
+            // 加载 Register.fxml
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/application/UserUI/Register.fxml"));
             Parent root = loader.load();
+
+            // 设置 UserDirectory
+            RegisterController registerController = loader.getController();
+            registerController.setUserDirectory(UserDirectoryHolder.getUserDirectory());
 
             Stage stage = new Stage();
             stage.setTitle("Register");
             stage.setScene(new Scene(root, 400, 300));
             stage.show();
 
-            // Hide the current stage (Login)
+            // 隐藏当前窗口
             Stage loginStage = (Stage) registerButton.getScene().getWindow();
             loginStage.hide();
 
-            // Show the login stage when the register stage is closed
+            // 注册页面关闭时显示登录页面
             stage.setOnCloseRequest(event -> loginStage.show());
         } catch (Exception e) {
             e.printStackTrace();
@@ -83,17 +103,19 @@ public class LoginController {
             Parent root = loader.load();
 
             InboxController controller = loader.getController();
-            controller.initialize(user); // Pass the logged-in user
+            controller.initialize(user);
 
             Stage stage = (Stage) usernameField.getScene().getWindow();
             stage.setScene(new Scene(root, 800, 600));
             stage.setTitle("To-Do List - Inbox");
+            stage.setWidth(800); 
+            stage.setHeight(600); 
+            stage.centerOnScreen(); 
             stage.show();
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
-
 
     private void showAlert(Alert.AlertType alertType, String title, String message) {
         Alert alert = new Alert(alertType);

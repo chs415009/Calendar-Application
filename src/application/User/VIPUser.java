@@ -6,8 +6,4 @@ public class VIPUser extends User {
         super(username, password, UserType.VIP);
     }
 
-    @Override
-    public void accessFeatures() {
-        System.out.println("Some feature of VIPUser");
-    }
 }

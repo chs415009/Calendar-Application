@@ -8,6 +8,9 @@ import application.User.User;
 import application.User.UserDirectory;
 import application.User.UserType;
 import application.WeeklyUI.WeeklyController;
+import application.User.UserDirectory;
+import application.User.UserDirectoryHolder;
+import application.UserUI.LoginController;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -48,13 +51,18 @@ public class InboxController {
     private ObservableList<String> navigationItems;
     private ToDoManager toDoManager;
     private User currentUser;
+    private UserDirectory userDirectory;
     
 
     public void initialize(User user) {
-    	this.currentUser = user;
+        this.currentUser = user;
         this.toDoManager = user.getToDoManager(); // Use the logged-in user's ToDoManager
         Locale.setDefault(Locale.ENGLISH);
 
+        if (this.toDoManager == null) {
+            throw new IllegalStateException("ToDoManager is not initialized");
+        }
+        
         // Show "Tasks" title and filter section by default
         tasksTitle.setVisible(true);
         tasksTitle.setManaged(true);
@@ -216,6 +224,7 @@ public class InboxController {
         // Refresh the task list to display the new task immediately
         String selectedCategory = navigationList.getSelectionModel().getSelectedItem();
         updateTasks(selectedCategory); // Update the tasks based on the current category
+
     }
     
     @FXML
@@ -232,6 +241,7 @@ public class InboxController {
             alert.setContentText("Please select a task to edit.");
             alert.showAndWait();
         }
+
     }
 
     @FXML
@@ -239,7 +249,7 @@ public class InboxController {
         ToDoItem selectedTask = taskListView.getSelectionModel().getSelectedItem();
         
         if (selectedTask == null) {
-        	// Show an alert if no task is selected
+            // Show an alert if no task is selected
             Alert alert = new Alert(Alert.AlertType.WARNING);
             alert.setTitle("No Task Selected");
             alert.setHeaderText(null);
@@ -247,41 +257,87 @@ public class InboxController {
             alert.showAndWait();
             return;
         }
-        
-        if(currentUser.getUserType() == UserType.VIP) {
-        	Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-        	alert.setTitle("Delete Task");
-        	alert.setHeaderText(null);
-        	alert.setContentText("Do you want to delete all tasks with the same name?");
 
-        	ButtonType buttonYes = new ButtonType("Yes", ButtonBar.ButtonData.YES);
-        	ButtonType buttonNo = new ButtonType("No", ButtonBar.ButtonData.NO);
-        	alert.getButtonTypes().setAll(buttonYes, buttonNo);
-
-        	Optional<ButtonType> result = alert.showAndWait();
-
-        	if (result.isPresent() && result.get() == buttonYes) {        	    
-        	    Iterator<ToDoItem> iterator = currentUser.getToDoList().iterator();
-        	    while(iterator.hasNext()) {
-        	    	ToDoItem todo = iterator.next();
-        	    	if(todo.getTitle().equals(selectedTask.getTitle()) && todo.getTag().equals(selectedTask.getTag())) {
-        	    		iterator.remove();
-        	    	}
-        	    }
-        	}
-        	else {
-        		toDoManager.deleteTask(selectedTask);
-        	}
+        // If userDirectory is available, save the users data to file
+        if (userDirectory != null) {
+            userDirectory.saveUsersToFile("users.json");
         }
-         
+
+        // Check user type
+        if (currentUser.getUserType() == UserType.VIP) {
+            // Prompt user to decide whether to delete all tasks with the same name
+            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+            alert.setTitle("Delete Task");
+            alert.setHeaderText(null);
+            alert.setContentText("Do you want to delete all tasks with the same name?");
+
+            ButtonType buttonYes = new ButtonType("Yes", ButtonBar.ButtonData.YES);
+            ButtonType buttonNo = new ButtonType("No", ButtonBar.ButtonData.NO);
+            alert.getButtonTypes().setAll(buttonYes, buttonNo);
+
+            Optional<ButtonType> result = alert.showAndWait();
+
+            if (result.isPresent() && result.get() == buttonYes) {
+                // Delete all tasks with the same name and tag
+                Iterator<ToDoItem> iterator = currentUser.getToDoList().iterator();
+                while (iterator.hasNext()) {
+                    ToDoItem todo = iterator.next();
+                    if (todo.getTitle().equals(selectedTask.getTitle()) && todo.getTag().equals(selectedTask.getTag())) {
+                        iterator.remove();
+                        toDoManager.deleteTask(todo); // Make sure to also delete from toDoManager
+                    }
+                }
+            } else {
+                // Delete only the selected task
+                currentUser.getToDoList().remove(selectedTask);
+                toDoManager.deleteTask(selectedTask); // Delete from toDoManager
+            }
+        } else {
+            // For non-VIP users, delete the selected task directly
+            currentUser.getToDoList().remove(selectedTask);
+            toDoManager.deleteTask(selectedTask); // Delete from toDoManager
+        }
+
+        // Update the task list view
         updateTasks(navigationList.getSelectionModel().getSelectedItem());
         taskDetails.setText("Select a task to view its details");
     }
+
     
     @FXML
     private void handleLogout() {
-        //Feiyu:.....
+        // 保存用户数据
+        if (userDirectory != null) {
+            userDirectory.saveUsersToFile("src/application/users.json");
+        }
+
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/application/UserUI/Login.fxml"));
+            Parent root = loader.load();
+
+            LoginController loginController = loader.getController();
+            loginController.setUserDirectory(UserDirectoryHolder.getUserDirectory());
+
+            Stage currentStage = (Stage) taskListView.getScene().getWindow();
+            Scene scene = new Scene(root, 400, 300);
+            scene.getStylesheets().add(getClass().getResource("/application/application.css").toExternalForm());
+
+            currentStage.setScene(scene);
+            currentStage.setTitle("Login");
+            currentStage.setWidth(400);
+            currentStage.setHeight(300);
+            currentStage.centerOnScreen();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Logout Error");
+            alert.setHeaderText(null);
+            alert.setContentText("Could not load the login view. Error: " + e.getMessage());
+            alert.showAndWait();
+        }
     }
+
     
 
     private void showAddTaskDialog(ToDoItem task) {

@@ -38,6 +38,9 @@ import application.ToDoItem;
 import application.ToDoManager;
 import application.TodayUI.TodayController;
 import application.User.User;
+import application.User.UserDirectory;
+import application.User.UserDirectoryHolder;
+import application.UserUI.LoginController;
 import application.User.UserType;
 import application.WeeklyUI.WeeklyController;
 
@@ -57,6 +60,8 @@ public class MonthlyController {
     private User currentUser;
     private YearMonth currentYearMonth;
     private ObservableList<String> navigationItems;
+    private UserDirectory userDirectory;
+    
 
     public void initialize(User user) {
     	this.currentUser = user;
@@ -303,12 +308,10 @@ public class MonthlyController {
         int row = 1, column = dayOfWeek;
         
         for (int day = 1; day <= daysInMonth; day++) {
-            //LocalDate date = firstDayOfMonth.withDayOfMonth(day);  
-            
             VBox dayBox = (VBox) getNodeFromGrid(calendarGrid, column, row);  
             if (dayBox != null) {
                 @SuppressWarnings("unchecked")
-				ListView<ToDoItem> dayList = (ListView<ToDoItem>) dayBox.getChildren().get(1);  
+                ListView<ToDoItem> dayList = (ListView<ToDoItem>) dayBox.getChildren().get(1);  
                 
                 if (dayList.getSelectionModel().getSelectedItem() != null) {
                     selectedTask = dayList.getSelectionModel().getSelectedItem();
@@ -324,7 +327,6 @@ public class MonthlyController {
         }
         
         if (selectedTask == null) {
-        	// Show an alert if no task is selected
             Alert alert = new Alert(Alert.AlertType.WARNING);
             alert.setTitle("No Task Selected");
             alert.setHeaderText(null);
@@ -332,41 +334,76 @@ public class MonthlyController {
             alert.showAndWait();
             return;
         }
-        
-        if(currentUser.getUserType() == UserType.VIP) {
-        	Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-        	alert.setTitle("Delete Task");
-        	alert.setHeaderText(null);
-        	alert.setContentText("Do you want to delete all tasks with the same name?");
+        if (currentUser.getUserType() == UserType.VIP) {
+            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+            alert.setTitle("Delete Task");
+            alert.setHeaderText(null);
+            alert.setContentText("Do you want to delete all tasks with the same name?");
 
-        	ButtonType buttonYes = new ButtonType("Yes", ButtonBar.ButtonData.YES);
-        	ButtonType buttonNo = new ButtonType("No", ButtonBar.ButtonData.NO);
-        	alert.getButtonTypes().setAll(buttonYes, buttonNo);
+            ButtonType buttonYes = new ButtonType("Yes", ButtonBar.ButtonData.YES);
+            ButtonType buttonNo = new ButtonType("No", ButtonBar.ButtonData.NO);
+            alert.getButtonTypes().setAll(buttonYes, buttonNo);
 
-        	Optional<ButtonType> result = alert.showAndWait();
+            Optional<ButtonType> result = alert.showAndWait();
 
-        	if (result.isPresent() && result.get() == buttonYes) {        	    
-        	    Iterator<ToDoItem> iterator = currentUser.getToDoList().iterator();
-        	    while(iterator.hasNext()) {
-        	    	ToDoItem todo = iterator.next();
-        	    	if(todo.getTitle().equals(selectedTask.getTitle()) && todo.getTag().equals(selectedTask.getTag())) {
-        	    		iterator.remove();
-        	    	}
-        	    }
-        	}
-        	else {
-        		toDoManager.deleteTask(selectedTask);
-        	}
+            if (result.isPresent() && result.get() == buttonYes) {              
+                Iterator<ToDoItem> iterator = currentUser.getToDoList().iterator();
+                while (iterator.hasNext()) {
+                    ToDoItem todo = iterator.next();
+                    if (todo.getTitle().equals(selectedTask.getTitle()) && todo.getTag().equals(selectedTask.getTag())) {
+                        iterator.remove();
+                        toDoManager.deleteTask(todo); 
+                    }
+                }
+            } else {
+                currentUser.getToDoList().remove(selectedTask);
+                toDoManager.deleteTask(selectedTask); 
+            }
+        } else {
+            currentUser.getToDoList().remove(selectedTask);
+            toDoManager.deleteTask(selectedTask); 
         }
-
         populateMonthlyTasks();
         taskDetails.setText("Select a task to view its details");
     }
+
+
     
     @FXML
     private void handleLogout() {
-        //Feiyu:.....
+        UserDirectory userDirectory = UserDirectoryHolder.getUserDirectory();
+        if (userDirectory != null) {
+            userDirectory.saveUsersToFile("src/application/users.json");
+        }
+
+        try {
+            // Load Login view
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/application/UserUI/Login.fxml"));
+            Parent root = loader.load();
+
+            LoginController loginController = loader.getController();
+            loginController.setUserDirectory(userDirectory); // 传递 userDirectory
+
+            Stage currentStage = (Stage) navigationList.getScene().getWindow();
+            Scene scene = new Scene(root, 400, 300);
+            scene.getStylesheets().add(getClass().getResource("/application/application.css").toExternalForm());
+
+            currentStage.setScene(scene);
+            currentStage.setTitle("Login");
+            currentStage.setWidth(400);
+            currentStage.setHeight(300);
+            currentStage.centerOnScreen();
+        } catch (IOException e) {
+            e.printStackTrace();
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Logout Error");
+            alert.setHeaderText(null);
+            alert.setContentText("Could not load the login view. Error: " + e.getMessage());
+            alert.showAndWait();
+        }
     }
+
+
 
     private void showAddTaskDialog(ToDoItem task) {
         Dialog<ToDoItem> dialog = new Dialog<>();
