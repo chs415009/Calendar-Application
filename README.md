@@ -5,8 +5,8 @@ Description: An application that help users to manage their to-do list with a ca
 1. Click below and download the zip file.<br>
 https://github.com/chs415009/Calendar-Application.git <br>
 
-2. Add the gson file to the libraries of the project.<br>
-   The gson file is already in the package. Just make sure the path is correct.<br><br>
+2. Add gson-2.8.9.jar to the libraries of the project.<br>
+   The gson-2.8.9.jar is already in the "libs" folder of the project. Just make sure the path is correct.<br><br>
    <img src="./bin/Libraries.png" width="500">
 
 ## Instructions:
