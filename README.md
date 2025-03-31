@@ -1,58 +1,144 @@
-# Calendar-Application
-Description: An application that help users to manage their to-do list with a calendar in different layout.
+# Calendar Application
 
-## Download:
-1. Click below and download the zip file.<br>
-https://github.com/chs415009/Calendar-Application.git <br>
+![Java](https://img.shields.io/badge/Java-11+-orange.svg)
+![JavaFX](https://img.shields.io/badge/Framework-JavaFX-blue.svg)
+![SceneBuilder](https://img.shields.io/badge/UI-SceneBuilder-purple.svg)
+![Project](https://img.shields.io/badge/Project-Academic-green.svg)
 
-2. Add gson-2.8.9.jar to the libraries of the project.<br>
-   The gson-2.8.9.jar is already in the "libs" folder of the project. Just make sure the path is correct.<br><br>
-   <img src="./bin/Libraries.png" width="500">
+**Calendar Application** is a task management system developed as an academic project to demonstrate core concepts in object-oriented programming, and UI design with JavaFX.
 
-## Instructions:
-### 1. __Sign in & Sign up__ <br>
-<img src="./bin/login.png" width="400"><img src="./bin/register.png" width="400">
+## 🎯 Project Goals
 
-* If you are a new user, go to the register page first. We design two kinds of users: normal and VIP.
-* Register the VIP user will have some advanced features. 
+This academic project was created to demonstrate:
+- Object-oriented design principles in Java
+- GUI development with JavaFX and SceneBuilder
+- User authentication implementation
+- Data persistence using JSON serialization
+- Different view implementations of the same data
 
-<br><br>
+## 🌟 Features
 
-### 2. __Introduction to Layout__ <br>
-<img src="./bin/inbox.png" width="400"><img src="./bin/today.png" width="400">
-<img src="./bin/weekly.png" width="400"><img src="./bin/monthly.png" width="400">
+- **User Authentication System**: Register and login functionality with multiple user types
+- **Multi-layout Task Management**: View tasks in different time-based layouts
+- **Real Calendar Integration**: Navigate between weeks and months with previous/next buttons
+- **Task CRUD Operations**: Create, read, update, and delete task functionality
+- **User Role System**: Different capabilities for normal users and VIP users
+- **Data Persistence**: JSON-based storage using Google's Gson library
 
-* These are the different layout for the application:<br>
-   *  __Inbox__: All the tasks of this account.<br>
-   *  __Today__: Showing tasks for today.<br>
-   *  __Weekly__: Showing tasks for this week.<br>
-   *  __Monthly__: Showing tasks for this month.<br>
-* The application has implemented real calendar, so we can see different weeks or months through the "previos" and "next" buttons.
+## 📥 Installation & Setup
 
-<br><br>
+### Prerequisites
+- Java Development Kit (JDK) 11 or higher
+- JavaFX SDK
+- Gson library (included in the project)
 
-### 3. __Features of Normal Users__ <br>
-<img src="./bin/add.png" width="300"><img src="./bin/edit.png" width="300"><img src="./bin/filter.png" width="300">
+### Setup Steps
+1. Clone the repository:
+   ```
+   git clone https://github.com/chs415009/Calendar-Application.git
+   ```
+2. Ensure the Gson library is properly linked:
+   - The gson-2.8.9.jar file is located in the "libs" folder
+   - Verify the library is added to the project's classpath
 
-* These two images shows the "add", "edit", "delete" and "filter" feature.
-   * Normal user can only create one task at a time. No empty input is allowed.
-   * Edit button is only allowed after selecting one the task. And once you select the task, the detail will show at the bottom of the page.
-   * As to the "delete" button, once clicked, the selected task will be deleted from this account.
-   * Filter can only be accessed in the inbox page, it helps the user to go though tasks catogorized by tags.
+   <p align="center">
+     <img src="./bin/Libraries.png" width="500" alt="Library Setup">
+   </p>
 
-<br><br>
+3. Build and run the project in your Java IDE
 
-### 4. __Features of VIP Users__ <br>
-<img src="./bin/VIP add.png" width="400"><img src="./bin/VIP delete.png" width="400">
+## 🚀 Application Workflow
 
-* VIP users have all the features that normal users have and two advanced feature.
-   * When adding tasks, VIP user can add recurring tasks through input the frequency and quantity. <br>
-   For example, "frequency: weekly + quantity: 3" means repeat this task 3 times every week since the selected date.
-   * When deleting tasks, the user can decide to delete only this task, or all the other tasks that have the same name and tag.
- 
-<br><br>
+### User Authentication
+The application starts with a login screen. New users can register as either normal or VIP users.
 
-### 5. __Logout & Save__ <br>
-* When the user clicks the **Logout** button at the bottom-left corner of the page, the system automatically navigates back to the login page.  
-* All changes made by users during the session are saved when the page is closed.  
-* Data is stored in a **JSON** file, which the system reads when the project is launched again.  
+<p align="center">
+  <img src="./bin/login.png" width="400" alt="Login Screen">
+  <img src="./bin/register.png" width="400" alt="Registration Screen">
+</p>
+
+### Task Management Views
+The application offers four different views to manage tasks:
+
+<div align="center">
+  <table>
+    <tr>
+      <td><b>Inbox View</b><br><img src="./bin/inbox.png" width="350"></td>
+      <td><b>Today View</b><br><img src="./bin/today.png" width="350"></td>
+    </tr>
+    <tr>
+      <td><b>Weekly View</b><br><img src="./bin/weekly.png" width="350"></td>
+      <td><b>Monthly View</b><br><img src="./bin/monthly.png" width="350"></td>
+    </tr>
+  </table>
+</div>
+
+- **Inbox**: Displays all tasks associated with the account
+- **Today**: Shows only tasks scheduled for the current day
+- **Weekly**: Presents tasks organized by weekday for the current week
+- **Monthly**: Displays a calendar view with tasks for the entire month
+
+### Normal User Features
+Normal users can perform basic task management operations:
+
+<p align="center">
+  <img src="./bin/add.png" width="250" alt="Add Task">
+  <img src="./bin/edit.png" width="250" alt="Edit Task">
+  <img src="./bin/filter.png" width="250" alt="Filter Tasks">
+</p>
+
+- **Add Tasks**: Create individual tasks with date, description, and tags
+- **Edit Tasks**: Modify details of existing tasks
+- **Delete Tasks**: Remove selected tasks from the account
+- **Filter Tasks**: In the inbox view, filter tasks by tags
+
+### VIP User Features
+VIP users have access to advanced functionality:
+
+<p align="center">
+  <img src="./bin/VIP add.png" width="400" alt="VIP Add Task">
+  <img src="./bin/VIP delete.png" width="400" alt="VIP Delete Task">
+</p>
+
+- **Recurring Tasks**: Create tasks that repeat at specified intervals (weekly, monthly, etc.)
+- **Batch Deletion**: Option to delete all recurring instances of a task
+- **All Normal User Features**: Access to all functionality available to normal users
+
+## 🔧 Technical Implementation
+
+### Object-Oriented Design
+- **User Class Hierarchy**: Implementation of user types with inheritance
+- **Task Model**: Encapsulated task data with proper access modifiers
+- **Controller Pattern**: Separation of UI logic from data management
+
+### JavaFX and SceneBuilder
+- **FXML-based UI**: Declarative UI design using SceneBuilder
+- **Event Handling**: Implementation of user interaction through event listeners
+- **Scene Navigation**: Management of different screens and views
+
+### Data Persistence
+- **JSON Serialization**: Using Gson to convert Java objects to/from JSON
+- **File I/O**: Reading and writing data to persistent storage
+- **Automatic Saving**: Changes are saved when the application closes
+
+## 🎓 Learning Outcomes
+
+This project demonstrates proficiency in:
+
+- **OOP Concepts**: Inheritance, encapsulation, polymorphism
+- **Design Patterns**: MVC architecture, singleton for data management
+- **UI Development**: Creating responsive and intuitive user interfaces
+- **Date Management**: Working with calendar data and date calculations
+- **File Handling**: Implementing persistence through file operations
+
+## 📚 Academic Context
+
+This project was developed as part of a Java Object-Oriented Design course, with emphasis on:
+- Implementing proper OOP principles
+- Creating GUIs with JavaFX and SceneBuilder
+- Managing application state and persistence
+- Handling user authentication and authorization
+
+---
+
+**Calendar Application** - An academic project showcasing Java OOP principles, JavaFX, and UI design.
