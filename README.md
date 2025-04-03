@@ -13,7 +13,6 @@ This academic project was created to demonstrate:
 - Object-oriented design principles in Java
 - GUI development with JavaFX and SceneBuilder
 - User authentication implementation
-- Data persistence using JSON serialization
 - Different view implementations of the same data
 
 ## 🌟 Features
